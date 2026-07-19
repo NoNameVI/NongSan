@@ -19,7 +19,7 @@ public class SanPhamDAO {
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("my_persistence_unit");
     EntityManager em = emf.createEntityManager();
 
-    public boolean delete(int maSP) {
+    public boolean deleteProduct(int maSP) {
         EntityManager em = emf.createEntityManager();
         try {
 
