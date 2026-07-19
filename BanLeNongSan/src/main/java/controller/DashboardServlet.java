@@ -55,9 +55,16 @@ public class DashboardServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        DonHangDAO dao = new DonHangDAO();
+
+        List<Double[]> revenueList = dao.getRevenueByMonth();
+        List<Object[]> topProducts = dao.getTopSellingProducts();
+
+        request.setAttribute("revenueList", revenueList);
+        request.setAttribute("topProducts", topProducts);
+
+        request.getRequestDispatcher("/admindashboard.jsp").forward(request, response);
     }
 
     /**
