@@ -14,8 +14,14 @@ import java.util.logging.Logger;
  */
 public class DBContext {
 
+    /**
+     *
+     */
     protected Connection conn = null;
 
+    /**
+     *
+     */
     public DBContext() {
 
         try {
