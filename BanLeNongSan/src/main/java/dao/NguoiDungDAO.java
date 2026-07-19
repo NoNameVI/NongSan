@@ -40,28 +40,28 @@ public class NguoiDungDAO extends DBContext {
     }
 
     public NguoiDung login(String email, String pass) {
-        NguoiDung u = new NguoiDung();
-        String sql = "select * from NguoiDung\n"
-                + "where Email =?  and MatKhau=?";
         try {
-            PreparedStatement ps = conn.prepareCall(sql);
-            ps.setString(1, email);
-            ps.setString(2, hashMD5(pass));
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                u.setMaND(rs.getInt("MaND"));
-                u.setEmail(rs.getString("Email"));
-                u.setMatKhau(rs.getString("MatKhau"));
-                u.setHoTen(rs.getString("HoTen"));
+
+            String jpql = "SELECT n FROM NguoiDung n WHERE n.email = :email AND n.matKhau = :pass";
+            TypedQuery<NguoiDung> query = em.createQuery(jpql, NguoiDung.class);
+            query.setParameter("email", email);
+            query.setParameter("pass", hashMD5(pass));
+
+            NguoiDung u = query.getSingleResult();
+            if (u != null) {
+                return u;
             }
+
+        } catch (jakarta.persistence.NoResultException e) {
+            System.out.println("Không tìm thấy tài khoản với email này hoặc sai mật khẩu.");
         } catch (Exception e) {
+            e.printStackTrace();
         }
-        return u;
+        return null;
     }
 
     public List<NguoiDung> getAllUsers() {
         try {
-
             String jpql = "select n from NguoiDung n";
             TypedQuery<NguoiDung> tq = em.createQuery(jpql, NguoiDung.class);
             return tq.getResultList();
@@ -132,8 +132,4 @@ public class NguoiDungDAO extends DBContext {
         return false;
     }
 
-    public static void main(String[] args) {
-        NguoiDungDAO dao = new NguoiDungDAO();
-        System.out.println(dao.getUserProfile(1));
-    }
 }
