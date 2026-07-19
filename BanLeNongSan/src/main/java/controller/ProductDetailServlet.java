@@ -1,49 +1,25 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
+import dao.DanhGiaDAO;
+import dao.SanPhamDAO;
+import entity.DanhGia;
+import entity.SanPham;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import entity.HinhAnhSanPham;
+import dao.HinhAnhSanPhamDAO;
 
 /**
  *
- * @author asus
+ * @author ADMIN
  */
-@WebServlet(name = "ProductDetailServlet", urlPatterns = {"/droductdetail"})
+@WebServlet(name = "ProductDetailServlet", urlPatterns = {"/product-detail"})
 public class ProductDetailServlet extends HttpServlet {
-
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet ProductDetailServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet ProductDetailServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -57,7 +33,32 @@ public class ProductDetailServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        String idRaw = request.getParameter("id");
+        if (idRaw != null) {
+            int maSP = Integer.parseInt(idRaw);
+
+            SanPhamDAO sanPhamDAO = new SanPhamDAO();
+            HinhAnhSanPhamDAO hinhAnhDAO = new HinhAnhSanPhamDAO();
+            DanhGiaDAO danhGiaDAO = new DanhGiaDAO();
+
+            // 1. Lấy thông tin sản phẩm
+            SanPham sanPham = sanPhamDAO.getProductById(maSP);
+
+            // 2. Lấy danh sách hình ảnh kèm theo
+            List<HinhAnhSanPham> listImages = hinhAnhDAO.getImagesByProductId(maSP);
+
+            // 3. Lấy danh sách đánh giá
+            List<DanhGia> listReviews = danhGiaDAO.getReviewsByProduct(maSP);
+
+            // Gửi tất cả sang trang JSP
+            request.setAttribute("product", sanPham);
+            request.setAttribute("listImages", listImages);
+            request.setAttribute("listReviews", listReviews);
+
+            request.getRequestDispatcher("productdetail.jsp").forward(request, response);
+        } else {
+            response.sendRedirect("products"); // Nếu không có ID thì đẩy về trang danh sách
+        }
     }
 
     /**
@@ -71,7 +72,6 @@ public class ProductDetailServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
     }
 
     /**
