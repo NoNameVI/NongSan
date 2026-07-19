@@ -1,95 +1,48 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
+import dao.DonHangDAO;
+import entity.DonHang;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- *
- * @author asus
- */
-@WebServlet(name = "OrderManageServlet", urlPatterns = {"/ordermanage"})
+@WebServlet(name = "OrderManageServlet", urlPatterns = {"/admin/orders"})
 public class OrderManageServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet OrderManageServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet OrderManageServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         DonHangDAO dao = new DonHangDAO();
+
+        // Lấy danh sách toàn bộ đơn hàng[cite: 16]
         List<DonHang> list = dao.getAllOrders();
         request.setAttribute("orderList", list);
+
+        // Điều hướng sang giao diện adminorders.jsp[cite: 16]
         request.getRequestDispatcher("/adminorders.jsp").forward(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
+
+        // Lấy thông tin cập nhật từ form[cite: 16]
         int orderId = Integer.parseInt(request.getParameter("orderId"));
         String status = request.getParameter("status");
 
+        // Gọi DAO để cập nhật trạng thái[cite: 16]
         DonHangDAO dao = new DonHangDAO();
         dao.updateOrderStatus(orderId, status);
 
-        response.sendRedirect(request.getContextPath() + "/admin/OrderManageServlet");
+        // Chuyển hướng lại trang danh sách đơn hàng[cite: 16]
+        response.sendRedirect(request.getContextPath() + "/admin/orders");
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Quản lý đơn hàng cho Admin";
+    }
 }

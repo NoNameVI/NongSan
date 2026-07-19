@@ -1,16 +1,17 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
+import dao.GioHangDAO;
+import dao.NguoiDungDAO;
+import entity.ChiTietGioHang;
+import entity.NguoiDung;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  *
@@ -19,30 +20,21 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet(name = "CheckoutServlet", urlPatterns = {"/checkout"})
 public class CheckoutServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet CheckoutServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet CheckoutServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+    // Hàm hỗ trợ đọc Cookie để lấy mã người dùng
+    private Integer getMaNDFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                if (c.getName().equals("maND")) {
+                    try {
+                        return Integer.parseInt(c.getValue());
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+                }
+            }
         }
+        return null;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -57,7 +49,29 @@ public class CheckoutServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        GioHangDAO cartDAO = new GioHangDAO();
+        NguoiDungDAO userDAO = new NguoiDungDAO(); // Khởi tạo thêm DAO người dùng
+
+        Integer userId = getMaNDFromCookie(request);
+
+        if (userId == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        // 1. Lấy thông tin user để fill vào form
+        NguoiDung user = userDAO.getUserProfile(userId);
+        request.setAttribute("user", user);
+
+        // 2. Lấy giỏ hàng
+        List<ChiTietGioHang> cartItems = cartDAO.getCartItems(userId);
+        request.setAttribute("cartItems", cartItems);
+
+        // 3. Lấy tổng tiền (nếu có từ URL)
+        String tongTien = request.getParameter("tongTien");
+        request.setAttribute("tongTien", tongTien);
+
+        request.getRequestDispatcher("checkout.jsp").forward(request, response);
     }
 
     /**
@@ -71,7 +85,31 @@ public class CheckoutServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        request.setCharacterEncoding("UTF-8");
+
+        // Kiểm tra bảo mật: Đảm bảo người dùng đã đăng nhập trước khi submit form thanh toán
+        Integer userId = getMaNDFromCookie(request);
+        if (userId == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        // 1. Thu thập thông tin giao hàng
+        String shippingAddress = request.getParameter("address");
+        String shippingPhone = request.getParameter("phone");
+
+        // 2. Thu thập phương thức thanh toán (ví dụ: COD, VNPay, Momo...)
+        String paymentMethod = request.getParameter("paymentMethod");
+
+        // 3. Đóng gói dữ liệu vào request attribute để chuyển giao
+        request.setAttribute("shippingAddress", shippingAddress);
+        request.setAttribute("shippingPhone", shippingPhone);
+        request.setAttribute("paymentMethod", paymentMethod);
+
+        // Chuyển tiếp toàn bộ request sang OrderServlet (Do Thành viên khác làm)
+        // OrderServlet sẽ lấy thông tin này tạo DonHang, lấy danh sách giỏ hàng để tạo ChiTietDonHang,
+        // và gọi ThanhToanDAO.createPayment() của bạn để tạo record thanh toán.
+        request.getRequestDispatcher("/order").forward(request, response);
     }
 
     /**
@@ -81,7 +119,7 @@ public class CheckoutServlet extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Short description";
+        return "Checkout Servlet with Cookie Authentication";
     }// </editor-fold>
 
 }

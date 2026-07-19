@@ -52,7 +52,7 @@ public class LoginServlet extends HttpServlet {
         String pass = request.getParameter("pass");
         NguoiDungDAO dao = new NguoiDungDAO();
         NguoiDung u = dao.login(email, pass);
-        if (u.getMaND() == 0) {
+        if (u == null) {
             request.setAttribute("err", "Email hoặc mật khẩu không chính xác!");
             request.getRequestDispatcher("login.jsp").forward(request, response);
         } else {
@@ -60,6 +60,10 @@ public class LoginServlet extends HttpServlet {
             Cookie cookieFullname = new Cookie("fullname", u.getHoTen().replaceAll("\\s+", "_"));
             cookieFullname.setMaxAge(60 * 60);
             response.addCookie(cookieFullname);
+            // 2. BỔ SUNG: Cookie lưu MaND để định danh cho các Servlet khác dùng chung[cite: 1]
+            Cookie cookieMaND = new Cookie("maND", String.valueOf(u.getMaND()));
+            cookieMaND.setMaxAge(60 * 60); // Tồn tại trong 1 giờ
+            response.addCookie(cookieMaND);
             response.sendRedirect("home");
         }
     }

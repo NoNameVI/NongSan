@@ -1,120 +1,84 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
+import dao.DonHangDAO;
+import entity.DonHang;
+import entity.NguoiDung;
+import entity.ChiTietDonHang;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 
-/**
- *
- * @author asus
- */
 @WebServlet(name = "OrderServlet", urlPatterns = {"/order"})
 public class OrderServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet OrderServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet OrderServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
-    }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        HttpSession session = request.getSession();
-        NguoiDung user = (NguoiDung) session.getAttribute("USER_SESSION");
 
-        if (user == null) {
+        // 1. ĐỌC COOKIE ĐỂ LẤY MÃ NGƯỜI DÙNG (maND)
+        Integer maND = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                if (c.getName().equals("maND")) {
+                    try {
+                        maND = Integer.parseInt(c.getValue());
+                    } catch (NumberFormatException e) {
+                        maND = null;
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Nếu không có Cookie (chưa đăng nhập), đẩy về trang Login
+        if (maND == null) {
             response.sendRedirect("login.jsp");
             return;
         }
 
+        // 2. KHỞI TẠO ĐƠN HÀNG VÀ GÁN DỮ LIỆU
         String diaChiGiao = request.getParameter("diaChiGiao");
+        // Giả sử tổng tiền bạn lấy từ tham số hoặc tính toán từ List chi tiết
         double tongTien = Double.parseDouble(request.getParameter("tongTien"));
 
-        @SuppressWarnings("unchecked")
-        List<ChiTietDonHang> listChiTiet = (List<ChiTietDonHang>) session.getAttribute("CART_ITEMS");
+        DonHang donHang = new DonHang();
+        donHang.setDiaChiGiao(diaChiGiao);
+        donHang.setTongTien(BigDecimal.valueOf(tongTien));
 
-        if (listChiTiet == null || listChiTiet.isEmpty()) {
-            response.sendRedirect("cart.jsp");
-            return;
-        }
+        // --- CHÚ Ý CHỖ NÀY ---
+        // Tùy vào việc Entity DonHang của bạn cấu hình Khóa Ngoại MaKhachHang là kiểu int hay đối tượng NguoiDung
+        // Trừờng hợp 1: Nếu MaKhachHang là kiểu đối tượng NguoiDung
+        NguoiDung khachHang = new NguoiDung();
+        khachHang.setMaND(maND);
+        donHang.setMaKhachHang(khachHang);
 
-        DonHang dh = new DonHang();
-        dh.setMaKhachHang(user.getMaND());
-        dh.setDiaChiGiao(diaChiGiao);
-        dh.setTongTien(tongTien);
+        // Trường hợp 2: Nếu MaKhachHang là kiểu int
+        // donHang.setMaKhachHang(maND);
+        // 3. LẤY DANH SÁCH CHI TIẾT TỪ SESSION HOẶC FORM VÀ GỌI DAO
+        // (Đây là dữ liệu mẫu giả định bạn đã lấy được danh sách item khách hàng muốn mua)
+        List<ChiTietDonHang> listChiTiet = (List<ChiTietDonHang>) request.getSession().getAttribute("cartItems");
 
         DonHangDAO dao = new DonHangDAO();
-        boolean isSuccess = dao.createOrder(dh, listChiTiet);
+        boolean isSuccess = dao.createOrder(donHang, listChiTiet);
 
+        // 4. CHUYỂN HƯỚNG DỰA TRÊN KẾT QUẢ
         if (isSuccess) {
-            session.removeAttribute("CART_ITEMS"); // Xóa session giỏ hàng sau khi đặt thành công
-            response.sendRedirect("OrderHistoryServlet");
+            // Xóa giỏ hàng tạm trong session (vì DAO đã xóa trong DB rồi)
+            request.getSession().removeAttribute("cartItems");
+            request.setAttribute("msg", "Đặt hàng thành công!");
+            request.getRequestDispatcher("orderhistory.jsp").forward(request, response);
         } else {
-            request.setAttribute("error", "Lỗi trong quá trình tạo đơn hàng!");
+            request.setAttribute("err", "Lỗi hệ thống! Vui lòng thử lại.");
             request.getRequestDispatcher("checkout.jsp").forward(request, response);
         }
     }
-
-/**
- * Returns a short description of the servlet.
- *
- * @return a String containing servlet description
- */
-@Override
-public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
 }
