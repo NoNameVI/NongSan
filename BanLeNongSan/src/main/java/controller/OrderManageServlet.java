@@ -55,9 +55,11 @@ public class OrderManageServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        DonHangDAO dao = new DonHangDAO();
+        List<DonHang> list = dao.getAllOrders();
+        request.setAttribute("orderList", list);
+        request.getRequestDispatcher("/adminorders.jsp").forward(request, response);
     }
 
     /**
@@ -69,9 +71,15 @@ public class OrderManageServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        int orderId = Integer.parseInt(request.getParameter("orderId"));
+        String status = request.getParameter("status");
+
+        DonHangDAO dao = new DonHangDAO();
+        dao.updateOrderStatus(orderId, status);
+
+        response.sendRedirect(request.getContextPath() + "/admin/OrderManageServlet");
     }
 
     /**
