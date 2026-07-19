@@ -14,6 +14,7 @@ import java.security.MessageDigest;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import util.DBContext;
 
@@ -62,17 +63,27 @@ public class NguoiDungDAO extends DBContext {
 
     public List<NguoiDung> getAllUsers() {
         try {
-            String jpql = "select n from NguoiDung n";
+            // Thêm điều kiện WHERE để loại bỏ người dùng có maVaiTro = 3
+            String jpql = "SELECT n FROM NguoiDung n WHERE n.maVaiTro.maVaiTro <> 3";
             TypedQuery<NguoiDung> tq = em.createQuery(jpql, NguoiDung.class);
             return tq.getResultList();
         } catch (Exception e) {
+            e.printStackTrace(); // Nên in log lỗi thay vì để trống
         }
         return null;
     }
 
     public NguoiDung getUserProfile(int MaND) {
         try {
-            return em.find(NguoiDung.class, MaND);
+            // Lấy thông tin người dùng bằng khóa chính
+            NguoiDung user = em.find(NguoiDung.class, MaND);
+
+            // Kiểm tra nếu user tồn tại và có vai trò là 3 thì từ chối trả về dữ liệu (return null)
+            if (user != null && user.getMaVaiTro() != null && user.getMaVaiTro().getMaVaiTro() == 3) {
+                return null;
+            }
+
+            return user;
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -80,7 +91,6 @@ public class NguoiDungDAO extends DBContext {
             e.printStackTrace();
             return null;
         }
-
     }
 
     public boolean updateProfile(NguoiDung nguoidung) {
@@ -103,16 +113,14 @@ public class NguoiDungDAO extends DBContext {
             em.getTransaction().begin();
             em.persist(nguoidung);
             em.getTransaction().commit();
+            return nguoidung; // Đổi từ return null thành return đối tượng
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
             e.printStackTrace();
             return null;
-        } finally {
-
         }
-        return null;
     }
 
     public boolean updateUserStatus(int MaND, String TrangThai) {
@@ -132,4 +140,34 @@ public class NguoiDungDAO extends DBContext {
         return false;
     }
 
+//    public static void main(String[] args) {
+//        NguoiDungDAO dao = new NguoiDungDAO();
+//        NguoiDung nd = new NguoiDung();
+//
+//        // 1. Điền các thông tin bắt buộc (NOT NULL)[cite: 4]
+//        nd.setMaND(8);
+//        nd.setHoTen("Nguyễn Văn Thức");
+//        nd.setEmail("thucn@gmail.com");
+//        nd.setMatKhau(dao.hashMD5("123456")); // Bắt buộc phải hash mật khẩu
+//        nd.setTrangThai("Khoa");
+//
+//        // 2. Điền các thông tin bổ sung
+//        nd.setSdt("0123456789");
+//        nd.setDiaChi("Hồ Chí Minh");
+//        nd.setNgayTao(new Date());
+//
+//        // 3. Khởi tạo và gán khóa ngoại VaiTro (Bắt buộc)[cite: 4]
+//        // Giả sử MaVaiTro = 1 (Khách hàng) đã tồn tại trong Database
+//        VaiTro vaiTro = new VaiTro(1);
+//        nd.setMaVaiTro(vaiTro);
+//
+//        // 4. Thực thi test
+//        System.out.println("Đang tiến hành insert dữ liệu...");
+//        NguoiDung result = dao.registerUser(nd);
+//        if (result != null) {
+//            System.out.println("Insert thành công!");
+//        } else {
+//            System.out.println("Insert thất bại do lỗi phía Database (xem log Exception).");
+//        }
+//    }
 }
