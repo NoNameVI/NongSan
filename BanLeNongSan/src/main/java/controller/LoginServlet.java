@@ -60,7 +60,7 @@ public class LoginServlet extends HttpServlet {
             Cookie cookieFullname = new Cookie("fullname", u.getHoTen().replaceAll("\\s+", "_"));
             cookieFullname.setMaxAge(60 * 60);
             response.addCookie(cookieFullname);
-            response.sendRedirect("HomePage.jsp");
+            response.sendRedirect("homepage.jsp");
         }
     }
 
