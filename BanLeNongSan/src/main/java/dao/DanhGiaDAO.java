@@ -8,7 +8,9 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 public class DanhGiaDAO {
+
     private final EntityManagerFactory emf = Persistence.createEntityManagerFactory("my_persistence_unit");
+
     public List<DanhGia> getReviewsByProduct(int maSP) {
         EntityManager em = emf.createEntityManager();
         try {
@@ -19,6 +21,7 @@ public class DanhGiaDAO {
         } finally {
         }
     }
+
     public boolean insertReview(DanhGia danhGia) {
         EntityManager em = emf.createEntityManager();
         try {

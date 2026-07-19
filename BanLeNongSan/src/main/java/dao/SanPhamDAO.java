@@ -8,7 +8,9 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 public class SanPhamDAO {
+
     private final EntityManagerFactory emf = Persistence.createEntityManagerFactory("my_persistence_unit");
+
     public List<SanPham> getAllProducts() {
         EntityManager em = emf.createEntityManager();
         try {
@@ -19,6 +21,7 @@ public class SanPhamDAO {
             em.close();
         }
     }
+
     public List<SanPham> getProductsByCategory(int maDanhMuc) {
         EntityManager em = emf.createEntityManager();
         try {
@@ -30,6 +33,7 @@ public class SanPhamDAO {
             em.close();
         }
     }
+
     public SanPham getProductById(int maSP) {
         EntityManager em = emf.createEntityManager();
         try {
@@ -43,7 +47,7 @@ public class SanPhamDAO {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            sp.setTrangThai("HoatDong"); 
+            sp.setTrangThai("HoatDong");
             em.persist(sp);
             em.getTransaction().commit();
             return true;
@@ -56,6 +60,7 @@ public class SanPhamDAO {
             em.close();
         }
     }
+
     public boolean updateProduct(SanPham sp) {
         EntityManager em = emf.createEntityManager();
         try {
@@ -72,6 +77,7 @@ public class SanPhamDAO {
             em.close();
         }
     }
+
     public boolean deleteProduct(int maSP) {
         EntityManager em = emf.createEntityManager();
         try {

@@ -8,7 +8,9 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 public class NhaCungCapDAO {
+
     private final EntityManagerFactory emf = Persistence.createEntityManagerFactory("my_persistence_unit");
+
     public List<NhaCungCap> getAllSuppliers() {
         EntityManager em = emf.createEntityManager();
         try {
@@ -19,6 +21,7 @@ public class NhaCungCapDAO {
             em.close();
         }
     }
+
     public NhaCungCap getSupplierById(int maNhaCungCap) {
         EntityManager em = emf.createEntityManager();
         try {
