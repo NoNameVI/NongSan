@@ -1,21 +1,22 @@
 <%--
     Document   : productdetail
-    Created on : Jul 19, 2026, 5:28:20 PM
+    Created on : Jul 19, 2026, 5:28:20 PM
     Author     : ADMIN
 --%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
     <head>
         <title>Chi tiết: ${product.tenSP}</title>
-        <style> body {
-            font-family: sans-serif;
-            padding: 20px;
-            max-width: 1000px;
-            margin: auto;
-        } </style>
+        <style> 
+            body {
+                font-family: sans-serif;
+                padding: 20px;
+                max-width: 1000px;
+                margin: auto;
+            } 
+        </style>
     </head>
     <body>
         <a href="products" style="text-decoration: none; color: blue;">⬅ Quay lại Trang chủ</a>
@@ -36,7 +37,23 @@
                     ${product.moTa}
                 </div>
                 <br>
-                <button style="padding: 10px 20px; background: #5cb85c; color: white; border: none; border-radius: 4px; cursor: pointer;">Thêm vào giỏ hàng (Cart)</button>
+                
+                <!-- Form gửi yêu cầu Thêm vào giỏ hàng -->
+                <form action="cart" method="POST">
+                    <input type="hidden" name="action" value="add">
+                    <input type="hidden" name="productId" value="${product.maSP}">
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label for="quantity" style="font-weight: bold; margin-right: 10px;">Số lượng:</label>
+                        <!-- Giới hạn max là số lượng tồn kho -->
+                        <input type="number" id="quantity" name="quantity" value="1" min="1" max="${product.soLuongTon}" style="width: 60px; padding: 5px; text-align: center;">
+                    </div>
+                    
+                    <button type="submit" style="padding: 10px 20px; background: #5cb85c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
+                        🛒 Thêm vào giỏ hàng
+                    </button>
+                </form>
+                
             </div>
         </div>
     </body>
