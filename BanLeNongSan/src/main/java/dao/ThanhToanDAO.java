@@ -4,16 +4,35 @@
  */
 package dao;
 
+import entity.ThanhToan;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
 /**
  *
- * @author asus
+ * @author HoangNLHCE200759
  */
 public class ThanhToanDAO {
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("my_persistence_unit");
-    EntityManager em = emf.createEntityManager();
+    private final EntityManagerFactory emf = Persistence.createEntityManagerFactory("my_persistence_unit");
+    private final EntityManager em = emf.createEntityManager();
+
+    public boolean createPayment(ThanhToan thanhToan) {
+        try {
+            em.getTransaction().begin();
+            em.persist(thanhToan); // Ghi nhận thông tin thanh toán vào DB
+            em.getTransaction().commit();
+            return true;
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            return false;
+        }
+    }
+
+    public static void main(String[] args) {
+
+    }
 }
