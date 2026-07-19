@@ -1,7 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
-    <!-- Define Persistence Unit -->
-    <persistence-unit name="my_persistence_unit">
-        
-    </persistence-unit>
+  <!-- Define Persistence Unit -->
+  <persistence-unit name="my_persistence_unit" transaction-type="RESOURCE_LOCAL">
+    <class>entity.ChiTietGioHang</class>
+    <class>entity.ThanhToan</class>
+    <class>entity.NguoiDung</class>
+    <class>entity.ChiTietDonHang</class>
+    <class>entity.SanPham</class>
+    <class>entity.DanhMuc</class>
+    <class>entity.DonHang</class>
+    <class>entity.Sysdiagrams</class>
+    <class>entity.VaiTro</class>
+    <class>entity.DanhGia</class>
+    <class>entity.GioHang</class>
+    <class>entity.HinhAnhSanPham</class>
+    <class>entity.NhaCungCap</class>
+    <properties>
+      <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlserver://localhost:1433;databaseName=quanly_nongsan;encrypt=true;trustServerCertificate=true;"/>
+      <property name="jakarta.persistence.jdbc.user" value="sa"/>
+      <property name="jakarta.persistence.jdbc.password" value="123456"/>
+      <property name="jakarta.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+    </properties>
+  </persistence-unit>
 </persistence>
