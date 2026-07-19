@@ -1,8 +1,3 @@
-<%-- 
-    Document   : login
-    Created on : Jul 3, 2026, 2:40:00 PM
-    Author     : asus
---%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
@@ -10,7 +5,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>LOGIN </title>
+        <title>LOGIN</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="css/style.css">
     </head>
@@ -30,32 +25,39 @@
                                     <path fill-rule="evenodd" d="M8 0c-.69 0-1.843.265-2.928.56-1.11.3-2.229.655-2.887.87a1.54 1.54 0 0 0-1.044 1.262c-.596 4.477.787 7.795 2.465 9.99a11.777 11.777 0 0 0 2.517 2.453c.386.273.744.482 1.048.625.28.132.581.24.829.24s.548-.108.829-.24a7.159 7.159 0 0 0 1.048-.625 11.775 11.775 0 0 0 2.517-2.453c1.678-2.195 3.061-5.513 2.465-9.99a1.541 1.541 0 0 0-1.044-1.263 62.467 62.467 0 0 0-2.887-.87C9.843.266 8.69 0 8 0zm0 5a1.5 1.5 0 0 1 .5 2.915l.385 1.99a.5.5 0 0 1-.491.595h-.788a.5.5 0 0 1-.49-.595l.384-1.99A1.5 1.5 0 0 1 8 5z"/>
                                     </svg>
                                 </div>
-                                <h2 class="fw-bold mb-2">LOGIN</h2>
-                                <p class="text-muted mb-0">Welcome!</p>
+                                <h2 class="fw-bold mb-2">ĐĂNG NHẬP</h2>
+                                <p class="text-muted mb-0">Chào mừng trở lại!</p>
                             </div>
 
                             <form action="login" method="POST">
                                 <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" id="username" name="email" placeholder="account" required>
+                                    <input type="email" class="form-control" id="username" name="email" placeholder="account" required>
                                     <label for="username">Email</label>
                                 </div>
 
                                 <div class="form-floating mb-4">
                                     <input type="password" class="form-control" id="password" name="pass" placeholder="password" required>
-                                    <label for="password">Password</label>
+                                    <label for="password">Mật khẩu</label>
                                 </div>
 
+                                <!-- Hiển thị lỗi đăng nhập -->
                                 <c:if test="${not empty err}">
                                     <div class="alert alert-warning rounded-pill" role="alert">${err}</div>
                                 </c:if>
+                                
+                                <!-- Hiển thị thông báo đăng ký thành công -->
+                                <c:if test="${not empty msg}">
+                                    <div class="alert alert-success rounded-pill" role="alert">${msg}</div>
+                                </c:if>
 
                                 <button class="btn btn-primary w-100 py-2 fw-bold rounded-pill login-submit" type="submit">
-                                    LOGIN
+                                    ĐĂNG NHẬP
                                 </button>
                             </form>
 
-                            <div class="text-center mt-4 small text-muted">
-
+                            <div class="text-center mt-4 small">
+                                <span class="text-muted">Chưa có tài khoản?</span> 
+                                <a href="register" class="fw-bold text-primary text-decoration-none">Đăng ký ngay</a>
                             </div>
                         </div>
                     </div>
