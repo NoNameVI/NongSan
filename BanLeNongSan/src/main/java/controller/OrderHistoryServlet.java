@@ -55,9 +55,28 @@ public class OrderHistoryServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        NguoiDung user = (NguoiDung) session.getAttribute("USER_SESSION");
+
+        if (user == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        DonHangDAO dao = new DonHangDAO();
+        String action = request.getParameter("action");
+
+        if ("detail".equals(action)) {
+            int orderId = Integer.parseInt(request.getParameter("id"));
+            List<ChiTietDonHang> details = dao.getOrderDetails(orderId);
+            request.setAttribute("orderDetails", details);
+            request.getRequestDispatcher("order-detail-view.jsp").forward(request, response);
+        } else {
+            List<DonHang> orders = dao.getOrdersByUser(user.getMaND());
+            request.setAttribute("orderHistory", orders);
+            request.getRequestDispatcher("orderhistory.jsp").forward(request, response);
+        }
     }
 
     /**
