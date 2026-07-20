@@ -5,66 +5,150 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>LOGIN</title>
+        <title>Đăng nhập</title>
+        <!-- Nhúng Bootstrap 5 -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="css/style.css">
+        <!-- Nhúng Bootstrap Icons -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        
+        <style>
+            body {
+                background-color: #f5f8f4; /* Màu nền xanh nhạt theo ảnh */
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+            .login-container {
+                max-width: 450px;
+                width: 100%;
+                padding: 20px;
+            }
+            .text-main-green {
+                color: #385635; /* Màu xanh đậm chữ và nút */
+            }
+            .bg-main-green {
+                background-color: #40603d;
+            }
+            .bg-main-green:hover {
+                background-color: #314a2f;
+            }
+            .form-label {
+                font-weight: 600;
+                color: #385635;
+                font-size: 14px;
+            }
+            .custom-input-group {
+                border: 1px solid #c3d4c0;
+                border-radius: 10px;
+                background-color: #ffffff;
+                overflow: hidden;
+            }
+            .custom-input-group:focus-within {
+                border-color: #40603d;
+                box-shadow: 0 0 0 0.2rem rgba(64, 96, 61, 0.25);
+            }
+            .custom-input-group .input-group-text {
+                background-color: transparent;
+                border: none;
+                color: #5c7759;
+            }
+            .custom-input-group .form-control {
+                border: none;
+                box-shadow: none;
+                padding-left: 0;
+            }
+            .custom-input-group .form-control::placeholder {
+                color: #aebfab;
+            }
+        </style>
     </head>
-    <body class="login-page">
-        <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center px-3 py-4">
-            <div class="row w-100 justify-content-center">
-                <div class="col-12 col-xl-10">
-                    <div class="login-shell">
-                        <div class="login-hero">
-                            <h1></h1>
-                        </div>
+    <body class="min-vh-100 d-flex flex-column align-items-center justify-content-center">
 
-                        <div class="login-panel">
-                            <div class="text-center mb-4">
-                                <div class="brand-mark">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M8 0c-.69 0-1.843.265-2.928.56-1.11.3-2.229.655-2.887.87a1.54 1.54 0 0 0-1.044 1.262c-.596 4.477.787 7.795 2.465 9.99a11.777 11.777 0 0 0 2.517 2.453c.386.273.744.482 1.048.625.28.132.581.24.829.24s.548-.108.829-.24a7.159 7.159 0 0 0 1.048-.625 11.775 11.775 0 0 0 2.517-2.453c1.678-2.195 3.061-5.513 2.465-9.99a1.541 1.541 0 0 0-1.044-1.263 62.467 62.467 0 0 0-2.887-.87C9.843.266 8.69 0 8 0zm0 5a1.5 1.5 0 0 1 .5 2.915l.385 1.99a.5.5 0 0 1-.491.595h-.788a.5.5 0 0 1-.49-.595l.384-1.99A1.5 1.5 0 0 1 8 5z"/>
-                                    </svg>
-                                </div>
-                                <h2 class="fw-bold mb-2">ĐĂNG NHẬP</h2>
-                                <p class="text-muted mb-0">Chào mừng trở lại!</p>
-                            </div>
+        <div class="login-container">
+            <!-- Header -->
+            <div class="mb-4">
+                <h1 class="fw-bold text-main-green mb-2">Đăng nhập</h1>
+                <p class="text-secondary" style="font-size: 15px;">Chào mừng bạn quay lại! Vui lòng đăng nhập để tiếp tục.</p>
+            </div>
 
-                            <form action="login" method="POST">
-                                <div class="form-floating mb-3">
-                                    <input type="email" class="form-control" id="username" name="email" placeholder="account" required>
-                                    <label for="username">Email</label>
-                                </div>
+            <!-- Bắt lỗi/Thông báo từ hệ thống[cite: 25] -->
+            <c:if test="${not empty err}">
+                <div class="alert alert-danger rounded-3" role="alert">${err}</div>
+            </c:if>
+            <c:if test="${not empty msg}">
+                <div class="alert alert-success rounded-3" role="alert">${msg}</div>
+            </c:if>
 
-                                <div class="form-floating mb-4">
-                                    <input type="password" class="form-control" id="password" name="pass" placeholder="password" required>
-                                    <label for="password">Mật khẩu</label>
-                                </div>
-
-                                <!-- Hiển thị lỗi đăng nhập -->
-                                <c:if test="${not empty err}">
-                                    <div class="alert alert-warning rounded-pill" role="alert">${err}</div>
-                                </c:if>
-                                
-                                <!-- Hiển thị thông báo đăng ký thành công -->
-                                <c:if test="${not empty msg}">
-                                    <div class="alert alert-success rounded-pill" role="alert">${msg}</div>
-                                </c:if>
-
-                                <button class="btn btn-primary w-100 py-2 fw-bold rounded-pill login-submit" type="submit">
-                                    ĐĂNG NHẬP
-                                </button>
-                            </form>
-
-                            <div class="text-center mt-4 small">
-                                <span class="text-muted">Chưa có tài khoản?</span> 
-                                <a href="register" class="fw-bold text-primary text-decoration-none">Đăng ký ngay</a>
-                            </div>
-                        </div>
+            <!-- Form Đăng nhập[cite: 25] -->
+            <form action="login" method="POST">
+                
+                <!-- Email -->
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <div class="input-group custom-input-group p-1">
+                        <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="email@example.com" required>
                     </div>
                 </div>
+
+                <!-- Mật khẩu -->
+                <div class="mb-3">
+                    <label for="password" class="form-label">Mật khẩu</label>
+                    <div class="input-group custom-input-group p-1">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        <input type="password" class="form-control" id="password" name="pass" placeholder="••••••••" required>
+                        <!-- Nút hiển thị mật khẩu -->
+                        <button class="btn border-0 text-secondary shadow-none" type="button" id="togglePassword">
+                            <i class="bi bi-eye-fill"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ghi nhớ đăng nhập -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="remember" style="border-color: #aebfab;">
+                        <label class="form-check-label text-secondary" for="remember" style="font-size: 14px;">
+                            Ghi nhớ đăng nhập
+                        </label>
+                    </div>
+                    <!-- Đã bỏ Quên mật khẩu theo yêu cầu -->
+                </div>
+
+                <!-- Nút Submit[cite: 25] -->
+                <button type="submit" class="btn bg-main-green text-white w-100 py-2 fw-bold rounded-3 mb-4" style="font-size: 16px;">
+                    Đăng nhập
+                </button>
+            </form>
+
+            <!-- Liên kết Đăng ký[cite: 25] -->
+            <div class="text-center" style="font-size: 15px;">
+                <span class="text-secondary">Chưa có tài khoản?</span> 
+                <a href="register" class="fw-bold text-main-green text-decoration-none">Đăng ký ngay</a>
             </div>
+            
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        
+        <!-- Script xử lý ẩn/hiện mật khẩu -->
+        <script>
+            const togglePassword = document.querySelector('#togglePassword');
+            const password = document.querySelector('#password');
+            const icon = togglePassword.querySelector('i');
+
+            togglePassword.addEventListener('click', function (e) {
+                // Đổi type của input
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                
+                // Đổi icon
+                if (type === 'password') {
+                    icon.classList.remove('bi-eye-slash-fill');
+                    icon.classList.add('bi-eye-fill');
+                } else {
+                    icon.classList.remove('bi-eye-fill');
+                    icon.classList.add('bi-eye-slash-fill');
+                }
+            });
+        </script>
     </body>
 </html>
