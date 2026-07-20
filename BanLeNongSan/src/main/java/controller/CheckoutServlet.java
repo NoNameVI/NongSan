@@ -27,7 +27,7 @@ public class CheckoutServlet extends HttpServlet {
             for (Cookie c : cookies) {
                 if (c.getName().equals("maND")) {
                     try {
-                        return Integer.parseInt(c.getValue());
+                        return Integer.valueOf(c.getValue());
                     } catch (NumberFormatException e) {
                         return null;
                     }
