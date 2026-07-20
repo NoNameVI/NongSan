@@ -44,8 +44,8 @@
                     </c:if>
                 </a>
 
-                <!-- Dashboard (Chỉ hiện nếu là Admin - Giả định maVaiTro = 2) -->
-                <c:if test="${sessionScope.user.maVaiTro.maVaiTro == 2}">
+                <!-- Dashboard chỉ hiện cho nhân viên (2) và admin (3). -->
+                <c:if test="${sessionScope.user.maVaiTro.maVaiTro == 2 or sessionScope.user.maVaiTro.maVaiTro == 3}">
                     <a href="${pageContext.request.contextPath}/dashboard" class="text-sm font-bold text-brand-accent hover:text-white transition flex items-center gap-1">
                         ⚙️ Dashboard
                     </a>

@@ -35,7 +35,7 @@
 
             <!-- Cột phải (Hồ sơ & Đăng xuất) -->
             <div class="w-1/3 flex justify-end items-center gap-4">
-                <c:if test="${sessionScope.user.maVaiTro.maVaiTro == 2}">
+                <c:if test="${sessionScope.user.maVaiTro.maVaiTro == 2 or sessionScope.user.maVaiTro.maVaiTro == 3}">
                     <a href="${pageContext.request.contextPath}/dashboard" class="text-sm font-bold text-brand-accent hover:text-white transition flex items-center gap-1">
                         ⚙️ Dashboard
                     </a>
