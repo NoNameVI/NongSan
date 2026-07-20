@@ -1,7 +1,9 @@
 package controller;
 
 import dao.GioHangDAO;
+import dao.SanPhamDAO;
 import entity.ChiTietGioHang;
+import entity.SanPham;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -11,6 +13,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 @WebServlet(name = "CartServlet", urlPatterns = {"/cart"})
 public class CartServlet extends HttpServlet {
@@ -22,7 +26,7 @@ public class CartServlet extends HttpServlet {
             for (Cookie c : cookies) {
                 if (c.getName().equals("maND")) {
                     try {
-                        return Integer.parseInt(c.getValue());
+                        return Integer.valueOf(c.getValue());
                     } catch (NumberFormatException e) {
                         return null;
                     }
@@ -37,15 +41,18 @@ public class CartServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-        GioHangDAO cartDAO = new GioHangDAO();
 
-        // 1. Lấy mã người dùng từ Cookie thay vì Session[cite: 22]
+        // 1. Kiểm tra đăng nhập (Bắt buộc đăng nhập mới cho dùng giỏ hàng)
         Integer userId = getMaNDFromCookie(request);
-
         if (userId == null) {
-            // Chưa đăng nhập thì bắt quay lại trang Login
             response.sendRedirect("login.jsp");
             return;
+        }
+
+        // 2. Lấy giỏ hàng từ Session. Nếu chưa có thì khởi tạo List mới.
+        List<ChiTietGioHang> cartItems = (List<ChiTietGioHang>) session.getAttribute("cartItems");
+        if (cartItems == null) {
+            cartItems = new ArrayList<>();
         }
 
         String action = request.getParameter("action");
@@ -58,37 +65,77 @@ public class CartServlet extends HttpServlet {
                 case "add":
                     int productIdAdd = Integer.parseInt(request.getParameter("productId"));
                     int quantityAdd = Integer.parseInt(request.getParameter("quantity"));
-                    // Gọi DAO xử lý lưu vào Database[cite: 21, 22]
-                    cartDAO.addToCart(userId, productIdAdd, quantityAdd);
+                    boolean found = false;
+
+                    // Kiểm tra xem sản phẩm đã có trong giỏ chưa
+                    for (ChiTietGioHang item : cartItems) {
+                        if (item.getSanPham().getMaSP() == productIdAdd) {
+                            item.setSoLuong(item.getSoLuong() + quantityAdd);
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    // Nếu chưa có, tạo mới và add vào List
+                    if (!found) {
+                        SanPhamDAO spDAO = new SanPhamDAO();
+                        SanPham sp = spDAO.getProductById(productIdAdd);
+                        if (sp != null) {
+                            ChiTietGioHang newItem = new ChiTietGioHang();
+                            newItem.setSanPham(sp);
+                            newItem.setSoLuong(quantityAdd);
+                            cartItems.add(newItem);
+                        }
+                    }
                     break;
+
                 case "update":
                     int productIdUpdate = Integer.parseInt(request.getParameter("productId"));
                     int quantityUpdate = Integer.parseInt(request.getParameter("quantity"));
-                    cartDAO.updateCartQuantity(userId, productIdUpdate, quantityUpdate);
+                    Iterator<ChiTietGioHang> iterUpdate = cartItems.iterator();
+
+                    while (iterUpdate.hasNext()) {
+                        ChiTietGioHang item = iterUpdate.next();
+                        if (item.getSanPham().getMaSP() == productIdUpdate) {
+                            if (quantityUpdate <= 0) {
+                                iterUpdate.remove(); // Xóa nếu số lượng <= 0
+                            } else {
+                                item.setSoLuong(quantityUpdate);
+                            }
+                            break;
+                        }
+                    }
                     break;
+
                 case "remove":
                     int productIdRemove = Integer.parseInt(request.getParameter("productId"));
-                    cartDAO.removeFromCart(userId, productIdRemove);
+                    Iterator<ChiTietGioHang> iterRemove = cartItems.iterator();
+
+                    while (iterRemove.hasNext()) {
+                        ChiTietGioHang item = iterRemove.next();
+                        if (item.getSanPham().getMaSP() == productIdRemove) {
+                            iterRemove.remove();
+                            break;
+                        }
+                    }
                     break;
+
                 case "clear":
-                    cartDAO.clearCart(userId);
+                    cartItems.clear();
                     break;
             }
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            // Bỏ qua lỗi ép kiểu nếu parameter không hợp lệ
         }
 
-        // 2. Đồng bộ dữ liệu giỏ hàng mới nhất từ DB lên Session để các trang khác (như Header) dễ dàng hiển thị số lượng
-        List<ChiTietGioHang> cartItems = cartDAO.getCartItems(userId);
+        // 3. Cập nhật lại List mới lên Session
         session.setAttribute("cartItems", cartItems);
 
-        // 3. Phân luồng điều hướng
+        // 4. Điều hướng
         if ("view".equals(action)) {
-            // Chuyển tới trang JSP xem giỏ hàng
             request.getRequestDispatcher("cart.jsp").forward(request, response);
         } else {
-            // Sau khi thêm/sửa/xóa, redirect lại trang cart (phương thức GET) để tránh lỗi resubmit form khi F5
-            response.sendRedirect("cart");
+            response.sendRedirect("cart"); // Tránh lỗi resubmit form khi ấn F5
         }
     }
 
