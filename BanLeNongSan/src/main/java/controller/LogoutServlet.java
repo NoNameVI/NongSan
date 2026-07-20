@@ -41,7 +41,8 @@ public class LogoutServlet extends HttpServlet {
         if (cookies != null) {
             for (Cookie c : cookies) {
                 // 2. Kiểm tra tên Cookie cần xóa
-                if (c.getName().equals("fullname") || c.getName().equals("maND")) {
+                if (c.getName().equals("fullname") || c.getName().equals("maND")
+                        || c.getName().equals("maVaiTro")) {
                     c.setMaxAge(0);       // Đặt thời gian sống về 0 để xóa
                     c.setPath("/");       // BẮT BUỘC: Phải khớp với Path lúc khởi tạo mới xóa được
                     response.addCookie(c); // Ghi đè lại vào trình duyệt

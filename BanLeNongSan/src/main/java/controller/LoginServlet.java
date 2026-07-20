@@ -13,6 +13,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import entity.NguoiDung;
 
 /**
@@ -56,6 +57,10 @@ public class LoginServlet extends HttpServlet {
             request.setAttribute("err", "Email hoặc mật khẩu không chính xác!");
             request.getRequestDispatcher("login.jsp").forward(request, response);
         } else {
+            // Quyền phải được lưu phía máy chủ để không thể thay đổi bằng cookie.
+            HttpSession session = request.getSession(true);
+            session.setAttribute("user", u);
+
             //dung banh quy
             Cookie cookieFullname = new Cookie("fullname", u.getHoTen().replaceAll("\\s+", "_"));
             cookieFullname.setMaxAge(60 * 60);

@@ -46,7 +46,8 @@ public class ChiTietDonHang implements Serializable {
     @NotNull
     @Column(name = "DonGia")
     private BigDecimal donGia;
-    @Column(name = "ThanhTien")
+    // SQL Server tự tính ThanhTien = SoLuong * DonGia, nên JPA không được INSERT/UPDATE cột này.
+    @Column(name = "ThanhTien", insertable = false, updatable = false)
     private BigDecimal thanhTien;
     @JoinColumn(name = "MaDH", referencedColumnName = "MaDH", insertable = false, updatable = false)
     @ManyToOne(optional = false)
