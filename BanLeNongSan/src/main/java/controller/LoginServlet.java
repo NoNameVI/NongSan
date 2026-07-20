@@ -59,12 +59,31 @@ public class LoginServlet extends HttpServlet {
             //dung banh quy
             Cookie cookieFullname = new Cookie("fullname", u.getHoTen().replaceAll("\\s+", "_"));
             cookieFullname.setMaxAge(60 * 60);
+            cookieFullname.setPath("/"); // Thêm dòng này để cấp quyền toàn cục
             response.addCookie(cookieFullname);
-            // 2. BỔ SUNG: Cookie lưu MaND để định danh cho các Servlet khác dùng chung[cite: 1]
+
+            // 2. BỔ SUNG: Cookie lưu MaND để định danh cho các Servlet khác dùng chung
             Cookie cookieMaND = new Cookie("maND", String.valueOf(u.getMaND()));
             cookieMaND.setMaxAge(60 * 60); // Tồn tại trong 1 giờ
+            cookieMaND.setPath("/"); // Thêm dòng này để cấp quyền toàn cục
             response.addCookie(cookieMaND);
-            response.sendRedirect("home");
+
+            // 3. BỔ SUNG: Cookie lưu MaVaiTro để các Servlet Admin (OrderManageServlet,
+            // DashboardServlet, ProductManageServlet, UserManageServlet...) kiểm tra
+            // quyền truy cập mà KHÔNG cần query lại DB ở mỗi request.
+            // Quy ước MaVaiTro: 1 = Khach hang, 2 = Nhan vien, 3 = Quan ly
+            Cookie cookieVaiTro = new Cookie("maVaiTro", String.valueOf(u.getMaVaiTro().getMaVaiTro()));
+            cookieVaiTro.setMaxAge(60 * 60);
+            cookieVaiTro.setPath("/");
+            response.addCookie(cookieVaiTro);
+
+            // Điều hướng: Khách hàng vào trang chủ, Nhân viên/Quản lý vào Dashboard
+            int maVaiTro = u.getMaVaiTro().getMaVaiTro();
+            if (maVaiTro == 2 || maVaiTro == 3) {
+                response.sendRedirect("dashboard");
+            } else {
+                response.sendRedirect("home");
+            }
         }
     }
 

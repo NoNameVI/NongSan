@@ -31,17 +31,31 @@ public class LogoutServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        //banhquy
+        // 1. Lấy danh sách Cookie và kiểm tra null để tránh lỗi NullPointerException
         Cookie[] cookies = request.getCookies();
-        for (Cookie c : cookies) {
-            if (c.getName().equals("fullname")) {
-                c.setMaxAge(0);
-                response.addCookie(c);
+
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                // 2. Kiểm tra tên Cookie cần xóa
+                if (c.getName().equals("fullname") || c.getName().equals("maND")) {
+                    c.setMaxAge(0);       // Đặt thời gian sống về 0 để xóa
+                    c.setPath("/");       // BẮT BUỘC: Phải khớp với Path lúc khởi tạo mới xóa được
+                    response.addCookie(c); // Ghi đè lại vào trình duyệt
+                }
             }
         }
+
+        // Ngoài ra, nếu dự án có sử dụng HttpSession (ví dụ lưu giỏ hàng tạm), nên xóa luôn Session
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate(); // Hủy toàn bộ dữ liệu trong Session
+        }
+
+        // 3. Chuyển hướng về trang đăng nhập
         response.sendRedirect("login.jsp");
     }
 

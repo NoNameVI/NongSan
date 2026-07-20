@@ -93,6 +93,7 @@ public class ProfileServlet extends HttpServlet {
                 // Cập nhật lại Cookie fullname nếu người dùng đổi tên
                 Cookie cookieFullname = new Cookie("fullname", hoTen.replaceAll("\\s+", "_"));
                 cookieFullname.setMaxAge(60 * 60);
+                cookieFullname.setPath("/"); // Thêm dòng này để tránh lỗi tương tự khi đổi tên
                 response.addCookie(cookieFullname);
             } else {
                 request.setAttribute("err", "Cập nhật thất bại. Vui lòng thử lại!");

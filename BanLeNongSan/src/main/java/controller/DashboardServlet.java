@@ -1,96 +1,70 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
 import dao.DonHangDAO;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
 
-/**
- *
- * @author asus
- */
 @WebServlet(name = "DashboardServlet", urlPatterns = {"/dashboard"})
 public class DashboardServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet DashboardServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet DashboardServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        DonHangDAO dao = new DonHangDAO();
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-        List<Double[]> revenueList = dao.getRevenueByMonth();
-        List<Object[]> topProducts = dao.getTopSellingProducts();
+        // 1. KIỂM TRA QUYỀN ĐĂNG NHẬP + VAI TRÒ (Bảo mật cho trang Admin)
+        // SỬA LỖI BẢO MẬT: trước đây chỉ cần có cookie "maND" hợp lệ là vào được
+        // Dashboard, kể cả tài khoản Khách hàng. Nay bắt buộc phải là
+        // Nhân viên (maVaiTro = 2) hoặc Quản lý (maVaiTro = 3).
+        Integer maND = null;
+        String maVaiTro = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                if (c.getName().equals("maND")) {
+                    try {
+                        maND = Integer.parseInt(c.getValue());
+                    } catch (NumberFormatException e) {
+                        maND = null;
+                    }
+                }
+                if (c.getName().equals("maVaiTro")) {
+                    maVaiTro = c.getValue();
+                }
+            }
+        }
 
-        request.setAttribute("revenueList", revenueList);
-        request.setAttribute("topProducts", topProducts);
+        boolean hasValidRole = "2".equals(maVaiTro) || "3".equals(maVaiTro);
 
-        request.getRequestDispatcher("/admindashboard.jsp").forward(request, response);
+        // Nếu chưa đăng nhập hoặc không đủ quyền, đẩy về trang login
+        if (maND == null || !hasValidRole) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        // 2. LẤY DỮ LIỆU THỐNG KÊ
+        DonHangDAO dao = new DonHangDAO(); //
+
+        List<Double[]> revenueList = dao.getRevenueByMonth(); //[cite: 12]
+        List<Object[]> topProducts = dao.getTopSellingProducts(); //[cite: 12]
+
+        request.setAttribute("revenueList", revenueList); //[cite: 12]
+        request.setAttribute("topProducts", topProducts); //[cite: 12]
+
+        // 3. ĐIỀU HƯỚNG SANG GIAO DIỆN
+        // Đã bỏ dấu "/" ở đầu để tránh lỗi đường dẫn tuyệt đối
+        request.getRequestDispatcher("admindashboard.jsp").forward(request, response); //[cite: 12]
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        // Đảm bảo request POST cũng sẽ load được giao diện Dashboard thay vì gọi processRequest[cite: 12]
+        doGet(request, response);
     }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
 }

@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.math.BigDecimal;
 
 /**
  *
@@ -59,6 +60,13 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
+        // Flash message từ OrderServlet: hiển thị đúng một lần sau redirect.
+        String checkoutError = (String) request.getSession().getAttribute("checkoutError");
+        if (checkoutError != null) {
+            request.setAttribute("err", checkoutError);
+            request.getSession().removeAttribute("checkoutError");
+        }
+
         // 1. Lấy thông tin user để fill vào form
         NguoiDung user = userDAO.getUserProfile(userId);
         request.setAttribute("user", user);
@@ -67,8 +75,13 @@ public class CheckoutServlet extends HttpServlet {
         List<ChiTietGioHang> cartItems = cartDAO.getCartItems(userId);
         request.setAttribute("cartItems", cartItems);
 
-        // 3. Lấy tổng tiền (nếu có từ URL)
-        String tongTien = request.getParameter("tongTien");
+        BigDecimal tongTien = BigDecimal.ZERO;
+        for (ChiTietGioHang item : cartItems) {
+            if (item.getSanPham() != null && item.getSanPham().getDonGia() != null) {
+                tongTien = tongTien.add(item.getSanPham().getDonGia()
+                        .multiply(BigDecimal.valueOf(item.getSoLuong())));
+            }
+        }
         request.setAttribute("tongTien", tongTien);
 
         request.getRequestDispatcher("checkout.jsp").forward(request, response);
