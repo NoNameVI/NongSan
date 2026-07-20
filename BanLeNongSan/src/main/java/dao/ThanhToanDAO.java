@@ -15,10 +15,10 @@ import jakarta.persistence.Persistence;
  */
 public class ThanhToanDAO {
 
-    private final EntityManagerFactory emf = Persistence.createEntityManagerFactory("my_persistence_unit");
-    private final EntityManager em = emf.createEntityManager();
+    private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("my_persistence_unit");
 
     public boolean createPayment(ThanhToan thanhToan) {
+        EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
             em.persist(thanhToan); // Ghi nhận thông tin thanh toán vào DB
@@ -29,6 +29,8 @@ public class ThanhToanDAO {
                 em.getTransaction().rollback();
             }
             return false;
+        } finally {
+            em.close();
         }
     }
 

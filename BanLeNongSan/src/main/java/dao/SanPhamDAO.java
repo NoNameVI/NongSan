@@ -25,7 +25,9 @@ public class SanPhamDAO {
     public List<SanPham> getProductsByCategory(int maDanhMuc) {
         EntityManager em = emf.createEntityManager();
         try {
-            String jpql = "SELECT s FROM SanPham s WHERE s.maDanhMuc = :maDM AND s.trangThai = 'HoatDong'";
+            // FIX LỖI: Trỏ chi tiết vào trường khóa chính maDanhMuc bên trong đối tượng maDanhMuc
+
+            String jpql = "SELECT s FROM SanPham s WHERE s.maDanhMuc.maDanhMuc = :maDM AND s.trangThai = 'Con hang'";
             TypedQuery<SanPham> query = em.createQuery(jpql, SanPham.class);
             query.setParameter("maDM", maDanhMuc);
             return query.getResultList();

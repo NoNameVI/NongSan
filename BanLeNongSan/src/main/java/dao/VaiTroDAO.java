@@ -10,13 +10,12 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.TypedQuery;
-import util.DBContext;
 
 /**
  *
  * @author asus
  */
-public class VaiTroDAO extends DBContext {
+public class VaiTroDAO {
 
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("my_persistence_unit");
     EntityManager em = emf.createEntityManager();
