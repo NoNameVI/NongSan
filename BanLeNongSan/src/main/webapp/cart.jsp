@@ -72,7 +72,7 @@
                     <!-- GIỎ HÀNG TRỐNG -->
                     <div class="card border-0 shadow-sm rounded-4 p-5 text-center text-muted mb-4">
                         <p class="mb-3">Giỏ hàng của bạn đang trống.</p>
-                        <a href="product" class="btn btn-outline-success fw-bold rounded-3 px-4 py-2" style="border-color: #306c39; color: #306c39;">Quay lại cửa hàng</a>
+                        <a href="products" class="btn btn-outline-success fw-bold rounded-3 px-4 py-2" style="border-color: #306c39; color: #306c39;">Quay lại cửa hàng</a>
                     </div>
                 </c:when>
 
