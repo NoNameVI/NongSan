@@ -1,9 +1,12 @@
 package controller;
 
 import dao.DonHangDAO;
+import dao.ThanhToanDAO;
 import entity.DonHang;
 import entity.NguoiDung;
 import entity.ChiTietDonHang;
+import entity.ChiTietGioHang;
+import entity.ThanhToan;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -13,6 +16,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Date;
 
 @WebServlet(name = "OrderServlet", urlPatterns = {"/order"})
 public class OrderServlet extends HttpServlet {
@@ -21,9 +26,6 @@ public class OrderServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8");
-
-        // 1. ĐỌC COOKIE ĐỂ LẤY MÃ NGƯỜI DÙNG (maND)
         Integer maND = null;
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -39,40 +41,59 @@ public class OrderServlet extends HttpServlet {
             }
         }
 
-        // Nếu không có Cookie (chưa đăng nhập), đẩy về trang Login
         if (maND == null) {
             response.sendRedirect("login.jsp");
             return;
         }
 
         // 2. KHỞI TẠO ĐƠN HÀNG VÀ GÁN DỮ LIỆU
-        String diaChiGiao = request.getParameter("diaChiGiao");
-        // Giả sử tổng tiền bạn lấy từ tham số hoặc tính toán từ List chi tiết
-        double tongTien = Double.parseDouble(request.getParameter("tongTien"));
+        // Lấy đúng tham số "address" thay vì "diaChiGiao"
+        String diaChiGiao = request.getParameter("address");
+
+        double tongTien = 0;
+        try {
+            // Check null an toàn trước khi ép kiểu
+            String tongTienParam = request.getParameter("tongTien");
+            if (tongTienParam != null && !tongTienParam.isEmpty()) {
+                tongTien = Double.parseDouble(tongTienParam);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         DonHang donHang = new DonHang();
         donHang.setDiaChiGiao(diaChiGiao);
         donHang.setTongTien(BigDecimal.valueOf(tongTien));
 
-        // --- CHÚ Ý CHỖ NÀY ---
-        // Tùy vào việc Entity DonHang của bạn cấu hình Khóa Ngoại MaKhachHang là kiểu int hay đối tượng NguoiDung
-        // Trừờng hợp 1: Nếu MaKhachHang là kiểu đối tượng NguoiDung
         NguoiDung khachHang = new NguoiDung();
         khachHang.setMaND(maND);
         donHang.setMaKhachHang(khachHang);
 
-        // Trường hợp 2: Nếu MaKhachHang là kiểu int
-        // donHang.setMaKhachHang(maND);
-        // 3. LẤY DANH SÁCH CHI TIẾT TỪ SESSION HOẶC FORM VÀ GỌI DAO
-        // (Đây là dữ liệu mẫu giả định bạn đã lấy được danh sách item khách hàng muốn mua)
-        List<ChiTietDonHang> listChiTiet = (List<ChiTietDonHang>) request.getSession().getAttribute("cartItems");
+        // 3. LẤY DANH SÁCH CHI TIẾT TỪ SESSION
+        List<ChiTietGioHang> listChiTiet = (List<ChiTietGioHang>) request.getSession().getAttribute("cartItems");
 
         DonHangDAO dao = new DonHangDAO();
         boolean isSuccess = dao.createOrder(donHang, listChiTiet);
 
-        // 4. CHUYỂN HƯỚNG DỰA TRÊN KẾT QUẢ
+        // 4. GHI NHẬN THANH TOÁN & ĐIỀU HƯỚNG
         if (isSuccess) {
-            // Xóa giỏ hàng tạm trong session (vì DAO đã xóa trong DB rồi)
+
+//            // Gọi phương thức thanh toán từ request
+            String paymentMethod = request.getParameter("paymentMethod");
+//
+//            // Khởi tạo bill ThanhToan
+            ThanhToan tt = new ThanhToan();
+            tt.setMaDH(donHang); // donHang lúc này đã tự động được gán MaDH từ Database sau hàm persist
+            tt.setPhuongThuc(paymentMethod != null ? paymentMethod : "COD");
+            tt.setSoTien(BigDecimal.valueOf(tongTien));
+            tt.setNgayThanhToan(new Date());
+            tt.setTrangThai("chua thanh toan");
+//
+//            // Lưu record thanh toán
+            ThanhToanDAO ttDAO = new ThanhToanDAO();
+            ttDAO.createPayment(tt);
+//
+//            // Xóa giỏ hàng tạm trong session
             request.getSession().removeAttribute("cartItems");
             request.setAttribute("msg", "Đặt hàng thành công!");
             request.getRequestDispatcher("orderhistory.jsp").forward(request, response);
