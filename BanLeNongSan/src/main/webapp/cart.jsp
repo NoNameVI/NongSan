@@ -6,135 +6,134 @@
 <html lang="vi">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Giỏ Hàng Của Bạn</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-        <!-- Bổ sung icon Bootstrap cho nút xóa -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Giỏ Hàng Của Bạn - Nông Sản Việt</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {extend: {colors: {
+                            brand: {dark: '#112518', card: '#183625', primary: '#4ade80', accent: '#f97316', text: '#e2e8f0', muted: '#94a3b8'}
+                        }}}
+            }
+        </script>
     </head>
-    <body style="background-color: #f6fcf8; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <body class="bg-brand-dark text-brand-text font-sans antialiased min-h-screen">
 
-        <!-- NAVBAR -->
-        <div class="container-fluid py-3 mb-4 shadow-sm" style="background-color: #175e22;">
-            <div class="container d-flex flex-wrap justify-content-between align-items-center">
+        <!-- Navbar (Tích hợp logic từ code cũ của bạn) -->
+        <nav class="flex flex-wrap items-center justify-between px-10 py-4 bg-brand-dark text-brand-text border-b border-brand-card sticky top-0 z-50 gap-4">
+            <a href="home" class="flex items-center gap-2 text-xl font-bold text-brand-primary">
+                <span>🌿</span> Nông Sản Việt
+            </a>
 
-                <!-- BRAND / LOGO -->
-                <a href="home" class="text-decoration-none text-white fw-bold fs-2 lh-1" style="font-family: Arial, sans-serif;">
-                    <div>RAU</div>
-                    <div>THÉP</div>
-                </a>
+            <!-- Tìm kiếm (logic cũ) -->
+            <div class="flex-grow flex justify-center w-full md:w-auto order-3 md:order-none">
+                <form action="product" method="GET" class="w-full max-w-md flex">
+                    <input type="text" name="search" class="w-full bg-brand-card border border-brand-muted/30 rounded-l px-4 py-2 text-white focus:outline-none focus:border-brand-primary" placeholder="Tìm kiếm sản phẩm...">
+                    <button type="submit" class="bg-brand-primary text-brand-dark px-4 py-2 rounded-r font-bold hover:bg-green-500">🔍</button>
+                </form>
+            </div>
 
-                <!-- TÌM KIẾM & SLOGAN -->
-                <div class="flex-grow-1 d-flex flex-column align-items-center mx-3 my-3 my-md-0">
-                    <form action="product" method="GET" class="w-100" style="max-width: 450px;">
-                        <input type="text" name="search" class="form-control border-0 rounded-0 py-2" placeholder="Tìm kiếm...." style="background-color: #d9d9d9;">
-                    </form>
-                    <div class="text-white mt-2" style="font-size: 14px;">Xanh không yếu, xanh để chiến đấu</div>
-                </div>
-
-                <!-- ACTION BUTTONS -->
-                <div class="d-flex gap-2">
-                    <!-- Đọc tên từ Cookie, nếu không có hiển thị 'TÀI KHOẢN'. Replace dấu '_' thành khoảng trắng do trước đó đã mã hóa trong Servlet -->
-                    <a href="profile" class="btn text-white rounded-0 d-flex align-items-center px-3 text-uppercase" style="background-color: #1e3323; font-size: 12px; letter-spacing: 1px;">
-                        <c:choose>
-                            <c:when test="${not empty cookie.fullname.value}">
-                                ${fn:replace(cookie.fullname.value, '_', ' ')}
-                            </c:when>
-                            <c:otherwise>
-                                TÀI KHOẢN
-                            </c:otherwise>
-                        </c:choose>
+            <!-- User Auth (logic cũ) -->
+            <div class="flex items-center gap-3">
+                <c:if test="${cookie.maVaiTro.value == '2' or cookie.maVaiTro.value == '3'}">
+                    <a href="${pageContext.request.contextPath}/dashboard" class="text-sm font-bold text-brand-accent hover:text-white transition flex items-center gap-1">
+                        ⚙️ Dashboard
                     </a>
-                    <a href="logout" class="btn text-white rounded-0 d-flex align-items-center px-3 fs-5" style="background-color: #000000;">logout</a>
-                </div>
-
+                </c:if>
+                <a href="profile" class="text-sm font-bold bg-brand-card px-4 py-2 rounded border border-brand-dark hover:border-brand-primary transition">
+                    👤
+                    <c:choose>
+                        <c:when test="${not empty cookie.fullname.value}">
+                            ${fn:replace(cookie.fullname.value, '_', ' ')}
+                        </c:when>
+                        <c:otherwise>TÀI KHOẢN</c:otherwise>
+                    </c:choose>
+                </a>
+                <a href="logout" class="text-sm text-brand-muted hover:text-red-400 transition" title="Đăng xuất">🚪 Thoát</a>
             </div>
-        </div>
+        </nav>
 
-        <!-- MAIN CONTAINER -->
-        <div class="container pb-5" style="max-width: 650px;">
-            <!-- NÚT QUAY LẠI CỬA HÀNG -->
-            <div class="mb-3">
-                <a href="products" class="text-decoration-none fw-bold" style="color: #306c39;">&larr; Tiếp tục mua sắm</a>
-            </div>
+        <!-- Main Cart Container -->
+        <div class="max-w-3xl mx-auto px-4 py-12">
 
-            <!-- TITLE -->
-            <h2 class="fw-bold mb-3" style="color: #1e5c2b;">
-                Giỏ hàng
-                <c:if test="${not empty sessionScope.cartItems}">
-                    <span class="fw-normal" style="color: #8da391; font-size: 16px;">
-                        (${fn:length(sessionScope.cartItems)} sản phẩm)
-                    </span>
+            <a href="products" class="inline-flex items-center text-sm font-bold text-brand-primary hover:underline mb-6">
+                &larr; Tiếp tục mua sắm
+            </a>
+
+            <h2 class="text-3xl font-serif font-bold text-white mb-8 border-l-4 border-brand-primary pl-3">
+                Giỏ hàng của bạn
+                <c:if test="${not empty cartItems}">
+                    <span class="text-brand-muted text-lg font-normal ml-2">(${fn:length(cartItems)} sản phẩm)</span>
                 </c:if>
             </h2>
 
             <c:choose>
-                <c:when test="${empty sessionScope.cartItems}">
-                    <!-- GIỎ HÀNG TRỐNG -->
-                    <div class="card border-0 shadow-sm rounded-4 p-5 text-center text-muted mb-4">
-                        <p class="mb-3">Giỏ hàng của bạn đang trống.</p>
-                        <a href="products" class="btn btn-outline-success fw-bold rounded-3 px-4 py-2" style="border-color: #306c39; color: #306c39;">Quay lại cửa hàng</a>
+                <c:when test="${empty cartItems}">
+                    <!-- Giỏ hàng trống -->
+                    <div class="bg-brand-card border border-brand-dark rounded-xl p-12 text-center shadow-lg">
+                        <span class="text-6xl mb-4 block opacity-50">🛒</span>
+                        <p class="text-xl text-white font-bold mb-6">Giỏ hàng của bạn đang trống.</p>
+                        <a href="products" class="inline-block bg-transparent border-2 border-brand-primary text-brand-primary font-bold px-8 py-3 rounded hover:bg-brand-primary hover:text-brand-dark transition">
+                            Quay lại cửa hàng
+                        </a>
                     </div>
                 </c:when>
 
                 <c:otherwise>
-                    <!-- DANH SÁCH SẢN PHẨM -->
-                    <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4">
+                    <!-- Danh sách sản phẩm -->
+                    <div class="bg-brand-card border border-brand-dark rounded-xl p-6 mb-6 shadow-lg">
                         <c:set var="tongTienGiaoDich" value="0" />
 
-                        <c:forEach items="${sessionScope.cartItems}" var="item" varStatus="loop">
-                            <c:set var="thanhTienItem" value="${item.sanPham.donGia * item.soLuong}" />
+                        <div class="space-y-6">
+                            <c:forEach items="${cartItems}" var="item" varStatus="loop">
+                                <c:set var="thanhTienItem" value="${item.sanPham.donGia * item.soLuong}" />
 
-                            <div class="d-flex align-items-center py-3 ${!loop.last ? 'border-bottom' : ''}">
+                                <div class="flex items-center gap-4 pb-6 ${!loop.last ? 'border-b border-brand-dark' : ''}">
 
-                                <!-- Hình ảnh sản phẩm -->
-                                <div class="bg-light rounded-3 d-flex justify-content-center align-items-center me-3" style="width: 55px; height: 55px; overflow: hidden;">
-                                    <img src="${item.sanPham.hinhAnh}" alt="${item.sanPham.tenSP}" style="max-width: 100%; max-height: 100%; object-fit: cover;" onerror="this.style.display='none'">
-                                </div>
-
-                                <!-- Tên và Đơn giá -->
-                                <div class="flex-grow-1">
-                                    <div class="fw-semibold mb-1" style="color: #245b32;">${item.sanPham.tenSP}</div>
-                                    <div class="text-secondary" style="font-size: 13px;">
-                                        ${item.sanPham.donViTinh} &middot; <fmt:formatNumber value="${item.sanPham.donGia}" pattern="#,##0đ"/>
+                                    <!-- Hình ảnh -->
+                                    <div class="w-20 h-20 bg-brand-dark rounded-lg overflow-hidden flex-shrink-0">
+                                        <img src=".${item.sanPham.hinhAnh}" alt="${item.sanPham.tenSP}" class="w-full h-full object-cover" onerror="this.style.display='none'">
                                     </div>
-                                </div>
 
-                                <!-- Form tăng giảm số lượng -->
-                                <div class="me-3 me-md-4">
-                                    <form action="cart" method="POST" class="d-flex align-items-center border rounded-3 p-1 bg-white">
+                                    <!-- Thông tin -->
+                                    <div class="flex-grow">
+                                        <div class="font-bold text-white text-lg line-clamp-1">${item.sanPham.tenSP}</div>
+                                        <div class="text-brand-muted text-sm mt-1">
+                                            ${item.sanPham.donViTinh} &middot; <fmt:formatNumber value="${item.sanPham.donGia}" pattern="#,##0đ"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tăng giảm số lượng -->
+                                    <form action="cart" method="POST" class="flex items-center bg-brand-dark rounded border border-brand-muted/20 p-1">
                                         <input type="hidden" name="action" value="update" />
                                         <input type="hidden" name="productId" value="${item.sanPham.maSP}" />
 
-                                        <button type="submit" name="quantity" value="${item.soLuong - 1}" class="btn p-0 d-flex justify-content-center align-items-center text-secondary" style="width: 26px; height: 26px; background: none; border: none;">&minus;</button>
-
-                                        <input type="text" value="${item.soLuong}" class="form-control form-control-sm border-0 text-center fw-bold p-0 bg-white" style="width: 28px; pointer-events: none;" readonly />
-
-                                        <button type="submit" name="quantity" value="${item.soLuong + 1}" class="btn p-0 d-flex justify-content-center align-items-center text-secondary" style="width: 26px; height: 26px; background: none; border: none;">&plus;</button>
+                                        <button type="submit" name="quantity" value="${item.soLuong - 1}" class="w-8 h-8 flex items-center justify-center text-white hover:text-brand-primary font-bold text-lg leading-none">&minus;</button>
+                                        <input type="text" value="${item.soLuong}" class="w-10 bg-transparent text-center text-white font-bold text-sm outline-none pointer-events-none" readonly />
+                                        <button type="submit" name="quantity" value="${item.soLuong + 1}" class="w-8 h-8 flex items-center justify-center text-white hover:text-brand-primary font-bold text-lg leading-none">&plus;</button>
                                     </form>
-                                </div>
 
-                                <!-- Nút Xóa Sản Phẩm khỏi giỏ (Phục hồi lại) -->
-                                <div class="me-3">
-                                    <form action="cart" method="POST">
+                                    <!-- Nút xóa -->
+                                    <form action="cart" method="POST" class="ml-2">
                                         <input type="hidden" name="action" value="remove" />
                                         <input type="hidden" name="productId" value="${item.sanPham.maSP}" />
-                                        <button type="submit" class="btn p-0 text-danger fs-5" title="Xóa sản phẩm">
-                                            <i class="bi bi-trash"></i>
+                                        <button type="submit" class="p-2 text-brand-muted hover:text-red-500 transition text-xl" title="Xóa sản phẩm">
+                                            🗑️
                                         </button>
                                     </form>
+
+                                    <!-- Tổng phụ -->
+                                    <div class="w-24 text-right font-bold text-brand-accent text-lg">
+                                        <fmt:formatNumber value="${thanhTienItem}" pattern="#,##0đ"/>
+                                    </div>
                                 </div>
 
-                                <!-- Tổng phụ từng dòng -->
-                                <div class="fw-bold text-end" style="color: #245b32; width: 75px;">
-                                    <fmt:formatNumber value="${thanhTienItem}" pattern="#,##0đ"/>
-                                </div>
-                            </div>
-
-                            <c:set var="tongTienGiaoDich" value="${tongTienGiaoDich + thanhTienItem}" />
-                        </c:forEach>
+                                <c:set var="tongTienGiaoDich" value="${tongTienGiaoDich + thanhTienItem}" />
+                            </c:forEach>
+                        </div>
                     </div>
 
-                    <!-- TÍNH TOÁN PHÍ SHIP VÀ FREESHIP -->
+                    <!-- Logic Tính tiền (Giữ nguyên) -->
                     <c:set var="phiShip" value="20000" />
                     <c:set var="freeshipThreshold" value="150000" />
                     <c:if test="${tongTienGiaoDich >= freeshipThreshold}">
@@ -142,49 +141,46 @@
                     </c:if>
                     <c:set var="tongCong" value="${tongTienGiaoDich + phiShip}" />
 
-                    <!-- TỔNG KẾT ĐƠN HÀNG -->
-                    <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4">
-                        <div class="d-flex justify-content-between mb-2 text-secondary" style="font-size: 15px;">
+                    <!-- Tóm tắt đơn hàng -->
+                    <div class="bg-brand-card border border-brand-dark rounded-xl p-6 shadow-lg">
+                        <div class="flex justify-between text-brand-muted mb-3">
                             <span>Tạm tính</span>
-                            <span><fmt:formatNumber value="${tongTienGiaoDich}" pattern="#,##0đ"/></span>
+                            <span class="text-white"><fmt:formatNumber value="${tongTienGiaoDich}" pattern="#,##0đ"/></span>
                         </div>
-                        <div class="d-flex justify-content-between mb-3 text-secondary" style="font-size: 15px;">
-                            <span>Phí ship</span>
-                            <span>
+                        <div class="flex justify-between text-brand-muted mb-4">
+                            <span>Phí vận chuyển</span>
+                            <span class="text-white">
                                 <c:choose>
-                                    <c:when test="${phiShip == 0}">Miễn phí</c:when>
+                                    <c:when test="${phiShip == 0}"><span class="text-brand-primary font-bold">Miễn phí</span></c:when>
                                     <c:otherwise><fmt:formatNumber value="${phiShip}" pattern="#,##0đ"/></c:otherwise>
                                 </c:choose>
                             </span>
                         </div>
 
-                        <hr class="text-muted opacity-25 my-2" style="border-style: dashed;">
+                        <div class="border-t border-dashed border-brand-muted/30 my-4"></div>
 
-                        <div class="d-flex justify-content-between align-items-center mt-3 mb-4">
-                            <span class="fs-5 fw-bold" style="color: #1e5c2b;">Tổng</span>
-                            <span class="fs-5 fw-bold" style="color: #1e5c2b;"><fmt:formatNumber value="${tongCong}" pattern="#,##0đ"/></span>
+                        <div class="flex justify-between items-center mb-6">
+                            <span class="text-xl font-bold text-white">Tổng cộng</span>
+                            <span class="text-2xl font-bold text-brand-primary"><fmt:formatNumber value="${tongCong}" pattern="#,##0đ"/></span>
                         </div>
 
-                        <!-- Nút Đặt Hàng -->
+                        <!-- Form Đặt Hàng -->
                         <form action="checkout" method="GET">
-                            <!-- Truyền tổng tiền sang trang checkout -->
                             <input type="hidden" name="tongTien" value="${tongCong}">
-                            <button type="submit" class="btn w-100 py-3 fw-bold text-white rounded-3 shadow-sm" style="background-color: #306c39; font-size: 16px;">
-                                Đặt hàng
+                            <button type="submit" class="w-full bg-brand-primary text-brand-dark py-4 rounded-lg font-bold text-lg hover:bg-green-500 transition shadow-lg shadow-brand-primary/20">
+                                Tiến hành thanh toán
                             </button>
                         </form>
 
                         <!-- Thông báo Freeship -->
                         <c:if test="${phiShip > 0}">
-                            <div class="text-center mt-3" style="font-size: 13px; color: #8da391;">
-                                Mua thêm <fmt:formatNumber value="${freeshipThreshold - tongTienGiaoDich}" pattern="#,##0đ"/> để miễn phí ship
+                            <div class="text-center mt-4 text-sm text-brand-accent">
+                                Mua thêm <span class="font-bold"><fmt:formatNumber value="${freeshipThreshold - tongTienGiaoDich}" pattern="#,##0đ"/></span> để được miễn phí vận chuyển!
                             </div>
                         </c:if>
                     </div>
                 </c:otherwise>
             </c:choose>
         </div>
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

@@ -1,17 +1,12 @@
-<%--
-    Document   : adminproducts
-    Created on : Jul 19, 2026, 5:35:23 PM
-    Author     : ADMIN
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Quản lý sản phẩm - Admin</title>
+        <title>${product.tenSP} - Nông Sản Việt</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <script>
             tailwind.config = {
@@ -36,56 +31,185 @@
 
         <!-- NAVBAR -->
         <nav class="flex items-center justify-between px-10 py-4 bg-brand-dark text-brand-text border-b border-brand-card sticky top-0 z-50">
-            <div class="flex items-center gap-2 text-xl font-bold text-brand-primary">
-                <span>🌿</span> Nông Sản Việt (Admin)
+            <div class="flex items-center gap-2 text-xl font-bold text-brand-primary cursor-pointer" onclick="window.location.href = 'home'">
+                <span>🌿</span> Nông Sản Việt
             </div>
             <div class="flex gap-8 text-sm font-medium">
                 <a href="home" class="hover:text-brand-primary transition">Trang chủ</a>
                 <a href="products" class="hover:text-brand-primary transition">Cửa hàng</a>
+                <a href="#" class="hover:text-brand-primary transition">Về chúng tôi</a>
             </div>
+
+            <!-- KHU VỰC NÚT BẤM BÊN PHẢI -->
             <div class="flex items-center gap-4">
-                <a href="addproduct.jsp" class="bg-brand-accent px-4 py-2 rounded text-sm font-bold text-white hover:bg-orange-600 transition">+ Thêm sản phẩm mới</a>
+                <!-- Giỏ hàng -->
+                <a href="cart" class="relative p-2 bg-brand-card rounded hover:bg-brand-primary hover:text-brand-dark transition font-bold flex items-center gap-1">
+                    🛒 Giỏ hàng
+                    <c:if test="${not empty sessionScope.cartItems}">
+                        <span class="absolute -top-2 -right-2 bg-brand-accent text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">${fn:length(sessionScope.cartItems)}</span>
+                    </c:if>
+                </a>
+
+                <!-- Dashboard (Chỉ hiện nếu là Admin - Giả định maVaiTro = 2) -->
+                <c:if test="${sessionScope.user.maVaiTro.maVaiTro == 2}">
+                    <a href="${pageContext.request.contextPath}/dashboard" class="text-sm font-bold text-brand-accent hover:text-white transition flex items-center gap-1">
+                        ⚙️ Dashboard
+                    </a>
+                </c:if>
+
+                <!-- Profile -->
+                <a href="profile" class="text-sm font-bold bg-brand-card px-4 py-2 rounded border border-brand-dark hover:border-brand-primary transition flex items-center gap-1">
+                    👤
+                    <c:choose>
+                        <c:when test="${not empty cookie.fullname.value}">
+                            ${fn:replace(cookie.fullname.value, '_', ' ')}
+                        </c:when>
+                        <c:otherwise>Tài khoản</c:otherwise>
+                    </c:choose>
+                </a>
+
+                <!-- Logout -->
+                <a href="logout" class="text-sm text-brand-muted hover:text-red-400 transition flex items-center gap-1" title="Đăng xuất">
+                    🚪 Thoát
+                </a>
             </div>
         </nav>
 
-        <!-- CONTENT -->
-        <div class="p-8 max-w-7xl mx-auto">
-            <div class="flex justify-between items-center mb-8">
-                <div>
-                    <h1 class="text-3xl font-serif font-bold text-white">Quản lý sản phẩm</h1>
-                    <p class="text-brand-muted mt-1">Chỉnh sửa, cập nhật tồn kho và xóa sản phẩm trong kho</p>
-                </div>
-                <a href="addproduct.jsp" class="bg-brand-accent px-4 py-2 rounded text-sm font-bold text-white hover:bg-orange-600 transition">+ Thêm sản phẩm mới</a>
-            </div>
+        <!-- BREADCRUMB -->
+        <div class="max-w-7xl mx-auto px-8 py-6 text-sm text-brand-muted">
+            <a href="home" class="hover:text-brand-primary">Trang chủ</a> >
+            <a href="products" class="hover:text-brand-primary">Cửa hàng</a> >
+            <span class="text-brand-text">${product.tenSP}</span>
+        </div>
 
-            <!-- Bảng danh sách sản phẩm -->
-            <div class="bg-brand-card rounded-lg overflow-hidden border border-brand-dark">
-                <div class="grid grid-cols-12 gap-4 p-4 border-b border-brand-dark text-sm font-bold text-brand-muted uppercase">
-                    <div class="col-span-5">Sản phẩm</div>
-                    <div class="col-span-2">Danh mục</div>
-                    <div class="col-span-2">Giá</div>
-                    <div class="col-span-1">Tồn kho</div>
-                    <div class="col-span-2 text-right">Thao tác</div>
-                </div>
+        <!-- MAIN PRODUCT SECTION -->
+        <main class="max-w-7xl mx-auto px-8 pb-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
 
-                <c:forEach items="${listProducts}" var="p">
-                    <div class="grid grid-cols-12 gap-4 p-4 items-center border-b border-brand-dark hover:bg-white/5 transition">
-                        <div class="col-span-5 flex items-center gap-4">
-                            <img src="${p.hinhAnh}" class="w-12 h-12 rounded object-cover border border-brand-dark">
-                            <span class="font-medium text-white">${p.tenSP}</span>
-                        </div>
-                        <div class="col-span-2 text-brand-muted">${p.maDanhMuc.tenDanhMuc}</div>
-                        <div class="col-span-2 text-brand-primary font-bold">${p.donGia}đ</div>
-                        <div class="col-span-1 font-semibold">${p.soLuongTon}</div>
-                        <div class="col-span-2 flex justify-end gap-2">
-                            <a href="productupdate.jsp?id=${p.maSP}" class="px-3 py-1 bg-transparent border border-brand-muted rounded text-xs hover:text-white transition">✏️ Sửa</a>
-                            <a href="${pageContext.request.contextPath}/admin/products?action=delete&id=${p.maSP}"
-                               class="px-3 py-1 bg-red-900/50 text-red-400 rounded text-xs hover:bg-red-600 hover:text-white transition"
-                               onclick="return confirm('Bạn chắc chắn muốn xóa vĩnh viễn sản phẩm: ${p.tenSP}?')">🗑️ Xóa</a>
+                <!-- Cột trái: Hình ảnh sản phẩm -->
+                <div class="space-y-4">
+                    <!-- Ảnh chính -->
+                    <div class="aspect-square bg-brand-card rounded-2xl overflow-hidden border border-white/5 relative group">
+                        <img src=".${product.hinhAnh}" alt="${product.tenSP}" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                        <div class="absolute top-4 left-4 bg-brand-dark/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-brand-primary border border-brand-primary/30">
+                            ✨ Hữu cơ 100%
                         </div>
                     </div>
-                </c:forEach>
+
+                    <!-- Danh sách ảnh phụ -->
+                    <c:if test="${not empty listImages}">
+                        <div class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                            <img src=".${product.hinhAnh}" class="w-24 h-24 rounded-xl object-cover border-2 border-brand-primary cursor-pointer hover:opacity-80 transition">
+                            <c:forEach items="${listImages}" var="img">
+                                <img src=".${img.duongDan}" class="w-24 h-24 rounded-xl object-cover border border-brand-card cursor-pointer hover:border-brand-primary transition">
+                            </c:forEach>
+                        </div>
+                    </c:if>
+                </div>
+
+                <!-- Cột phải: Thông tin & Thêm vào giỏ hàng -->
+                <div class="flex flex-col justify-center">
+                    <h1 class="text-4xl font-serif font-bold text-white mb-2">${product.tenSP}</h1>
+
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="text-brand-accent text-3xl font-bold">${product.donGia} ₫</div>
+                        <div class="text-sm px-2 py-1 bg-white/5 rounded text-brand-muted">
+                            Kho: <span class="text-brand-text font-semibold">${product.soLuongTon}</span>
+                        </div>
+                    </div>
+
+                    <div class="border-l-4 border-brand-primary pl-4 mb-8">
+                        <p class="text-brand-muted leading-relaxed">
+                            ${product.moTa}
+                        </p>
+                    </div>
+
+                    <!-- FORM THÊM VÀO GIỎ HÀNG -->
+                    <form action="cart" method="post" class="mt-auto">
+                        <input type="hidden" name="action" value="add">
+                        <input type="hidden" name="productId" value="${product.maSP}">
+
+                        <div class="flex items-end gap-4 mb-6">
+                            <div>
+                                <label class="block text-xs font-bold text-brand-muted mb-2 uppercase tracking-wider">Số lượng</label>
+                                <div class="flex items-center bg-brand-card border border-brand-card rounded-xl overflow-hidden">
+                                    <button type="button" class="px-4 py-3 text-brand-muted hover:text-white hover:bg-white/5 transition" onclick="decreaseQty()">-</button>
+                                    <input type="number" id="qtyInput" name="quantity" value="1" min="1" max="${product.soLuongTon}" class="w-16 bg-transparent text-center font-bold text-white outline-none appearance-none">
+                                    <button type="button" class="px-4 py-3 text-brand-muted hover:text-white hover:bg-white/5 transition" onclick="increaseQty()">+</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <button type="submit" class="flex-1 bg-brand-primary text-brand-dark py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-green-500 hover:-translate-y-1 transition duration-300 shadow-[0_0_15px_rgba(74,222,128,0.2)]">
+                                🛒 Thêm vào giỏ
+                            </button>
+                            <button type="button" class="flex-1 bg-brand-accent text-white py-4 rounded-xl font-bold text-lg hover:bg-orange-600 hover:-translate-y-1 transition duration-300 shadow-[0_0_15px_rgba(249,115,22,0.2)]">
+                                💳 Mua ngay
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
+        </main>
+
+        <!-- PHẦN ĐÁNH GIÁ (REVIEWS) -->
+        <section class="border-t border-brand-card bg-brand-dark/50 pt-12 pb-20">
+            <div class="max-w-7xl mx-auto px-8">
+                <h2 class="text-2xl font-serif font-bold text-white mb-8 border-l-4 border-brand-accent pl-4">Đánh giá từ khách hàng</h2>
+
+                <c:choose>
+                    <c:when test="${not empty listReviews}">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <c:forEach items="${listReviews}" var="review">
+                                <div class="bg-brand-card p-6 rounded-xl border border-white/5 hover:-translate-y-1 transition duration-300">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="font-bold text-white flex items-center gap-2">
+                                            ${review.maKhachHang.hoTen}
+                                        </div>
+                                        <div class="text-brand-accent text-sm">
+                                            <!-- Vẽ số sao tương ứng với review.soSao -->
+                                            <c:forEach begin="1" end="${review.soSao}">⭐</c:forEach>
+                                            </div>
+                                        </div>
+                                        <p class="text-brand-muted text-sm line-clamp-3">
+                                            "${review.noiDung}"
+                                    </p>
+                                    <div class="text-xs text-brand-muted/50 mt-4 text-right">
+                                        ${review.ngayDanhGia}
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="text-center py-12 bg-brand-card rounded-xl border border-dashed border-brand-muted/30">
+                            <p class="text-4xl mb-2">🌱</p>
+                            <p class="text-brand-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
+                            <p class="text-sm text-brand-primary mt-2">Hãy là người đầu tiên thưởng thức và đánh giá nhé!</p>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </section>
+
+        <!-- Script nhỏ điều khiển số lượng -->
+        <script>
+            function increaseQty() {
+                let input = document.getElementById('qtyInput');
+                let max = parseInt(input.getAttribute('max'));
+                let currentVal = parseInt(input.value);
+                if (currentVal < max) {
+                    input.value = currentVal + 1;
+                }
+            }
+            function decreaseQty() {
+                let input = document.getElementById('qtyInput');
+                let currentVal = parseInt(input.value);
+                if (currentVal > 1) {
+                    input.value = currentVal - 1;
+                }
+            }
+        </script>
     </body>
 </html>

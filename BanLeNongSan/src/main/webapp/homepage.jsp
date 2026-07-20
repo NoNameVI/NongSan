@@ -5,6 +5,7 @@
 --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -33,17 +34,49 @@
     </head>
     <body class="bg-brand-dark text-brand-text font-sans antialiased min-h-screen">
 
+        <!-- NAVBAR -->
         <nav class="flex items-center justify-between px-10 py-4 bg-brand-dark text-brand-text border-b border-brand-card sticky top-0 z-50">
-            <div class="flex items-center gap-2 text-xl font-bold text-brand-primary">
+            <div class="flex items-center gap-2 text-xl font-bold text-brand-primary cursor-pointer" onclick="window.location.href = 'home'">
                 <span>🌿</span> Nông Sản Việt
             </div>
             <div class="flex gap-8 text-sm font-medium">
-                <a href="home" class="text-brand-primary transition">Trang chủ</a>
+                <a href="home" class="hover:text-brand-primary transition">Trang chủ</a>
                 <a href="products" class="hover:text-brand-primary transition">Cửa hàng</a>
                 <a href="#" class="hover:text-brand-primary transition">Về chúng tôi</a>
             </div>
+
+            <!-- KHU VỰC NÚT BẤM BÊN PHẢI -->
             <div class="flex items-center gap-4">
-                <a href="cart" class="p-2 bg-brand-card rounded hover:bg-brand-primary hover:text-brand-dark transition">🛒 Giỏ hàng</a>
+                <!-- Giỏ hàng -->
+                <a href="cart" class="relative p-2 bg-brand-card rounded hover:bg-brand-primary hover:text-brand-dark transition font-bold flex items-center gap-1">
+                    🛒 Giỏ hàng
+                    <c:if test="${not empty sessionScope.cartItems}">
+                        <span class="absolute -top-2 -right-2 bg-brand-accent text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">${fn:length(sessionScope.cartItems)}</span>
+                    </c:if>
+                </a>
+
+                <!-- Dashboard (Chỉ hiện nếu là Admin - Giả định maVaiTro = 2) -->
+                <c:if test="${sessionScope.user.maVaiTro.maVaiTro == 2}">
+                    <a href="${pageContext.request.contextPath}/dashboard" class="text-sm font-bold text-brand-accent hover:text-white transition flex items-center gap-1">
+                        ⚙️ Dashboard
+                    </a>
+                </c:if>
+
+                <!-- Profile -->
+                <a href="profile" class="text-sm font-bold bg-brand-card px-4 py-2 rounded border border-brand-dark hover:border-brand-primary transition flex items-center gap-1">
+                    👤
+                    <c:choose>
+                        <c:when test="${not empty cookie.fullname.value}">
+                            ${fn:replace(cookie.fullname.value, '_', ' ')}
+                        </c:when>
+                        <c:otherwise>Tài khoản</c:otherwise>
+                    </c:choose>
+                </a>
+
+                <!-- Logout -->
+                <a href="logout" class="text-sm text-brand-muted hover:text-red-400 transition flex items-center gap-1" title="Đăng xuất">
+                    🚪 Thoát
+                </a>
             </div>
         </nav>
 
@@ -116,9 +149,9 @@
 
                                 <div class="mt-auto flex gap-2">
                                     <a href="productdetail?id=${p.maSP}" class="flex-1 text-center bg-brand-dark border border-brand-muted text-brand-text py-2 rounded hover:bg-white/10 transition text-sm">Chi tiết</a>
-                                    <form action="cart" method="POST" class="flex-1">
+                                    <form action="cart" method="GET" class="flex-1">
+                                        <input type="hidden" name="action" value="quickAdd">
                                         <input type="hidden" name="productId" value="${p.maSP}">
-                                        <input type="hidden" name="quantity" value="1">
                                         <button type="submit" class="w-full bg-brand-primary text-brand-dark py-2 rounded font-bold hover:bg-green-500 transition text-sm">Thêm 🛒</button>
                                     </form>
                                 </div>

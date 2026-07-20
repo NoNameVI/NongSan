@@ -5,130 +5,104 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Đăng nhập</title>
-        <!-- Nhúng Bootstrap 5 -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <title>Đăng nhập - Nông Sản Việt</title>
         <!-- Nhúng Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-        
-        <style>
-            body {
-                background-color: #f5f8f4; /* Màu nền xanh nhạt theo ảnh */
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        <!-- Nhúng Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            brand: {
+                                dark: '#112518',
+                                card: '#183625',
+                                primary: '#4ade80',
+                                accent: '#f97316',
+                                text: '#e2e8f0',
+                                muted: '#94a3b8'
+                            }
+                        }
+                    }
+                }
             }
-            .login-container {
-                max-width: 450px;
-                width: 100%;
-                padding: 20px;
-            }
-            .text-main-green {
-                color: #385635; /* Màu xanh đậm chữ và nút */
-            }
-            .bg-main-green {
-                background-color: #40603d;
-            }
-            .bg-main-green:hover {
-                background-color: #314a2f;
-            }
-            .form-label {
-                font-weight: 600;
-                color: #385635;
-                font-size: 14px;
-            }
-            .custom-input-group {
-                border: 1px solid #c3d4c0;
-                border-radius: 10px;
-                background-color: #ffffff;
-                overflow: hidden;
-            }
-            .custom-input-group:focus-within {
-                border-color: #40603d;
-                box-shadow: 0 0 0 0.2rem rgba(64, 96, 61, 0.25);
-            }
-            .custom-input-group .input-group-text {
-                background-color: transparent;
-                border: none;
-                color: #5c7759;
-            }
-            .custom-input-group .form-control {
-                border: none;
-                box-shadow: none;
-                padding-left: 0;
-            }
-            .custom-input-group .form-control::placeholder {
-                color: #aebfab;
-            }
-        </style>
+        </script>
     </head>
-    <body class="min-vh-100 d-flex flex-column align-items-center justify-content-center">
+    <body class="bg-brand-dark text-brand-text font-sans antialiased min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
 
-        <div class="login-container">
+        <!-- Background Decor (Tạo điểm nhấn mờ phía sau) -->
+        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-brand-primary/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-brand-accent/10 rounded-full blur-3xl"></div>
+
+        <div class="w-full max-w-md bg-brand-card/90 backdrop-blur-md border border-brand-dark p-8 md:p-10 rounded-2xl shadow-2xl relative z-10">
+
             <!-- Header -->
-            <div class="mb-4">
-                <h1 class="fw-bold text-main-green mb-2">Đăng nhập</h1>
-                <p class="text-secondary" style="font-size: 15px;">Chào mừng bạn quay lại! Vui lòng đăng nhập để tiếp tục.</p>
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-dark border-2 border-brand-primary mb-4 text-3xl shadow-[0_0_15px_rgba(74,222,128,0.2)]">
+                    🌿
+                </div>
+                <h1 class="text-3xl font-serif font-bold text-white mb-2">Đăng nhập</h1>
+                <p class="text-brand-muted text-sm">Chào mừng bạn quay lại <strong class="text-brand-primary">Nông Sản Việt!</strong></p>
             </div>
 
-            <!-- Bắt lỗi/Thông báo từ hệ thống[cite: 25] -->
+            <!-- Bắt lỗi/Thông báo từ hệ thống -->
             <c:if test="${not empty err}">
-                <div class="alert alert-danger rounded-3" role="alert">${err}</div>
+                <div class="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm font-medium text-center flex items-center justify-center gap-2">
+                    <i class="bi bi-exclamation-triangle-fill"></i> ${err}
+                </div>
             </c:if>
             <c:if test="${not empty msg}">
-                <div class="alert alert-success rounded-3" role="alert">${msg}</div>
+                <div class="bg-brand-primary/10 border border-brand-primary/50 text-brand-primary px-4 py-3 rounded-lg mb-6 text-sm font-medium text-center flex items-center justify-center gap-2">
+                    <i class="bi bi-check-circle-fill"></i> ${msg}
+                </div>
             </c:if>
 
-            <!-- Form Đăng nhập[cite: 25] -->
+            <!-- Form Đăng nhập -->
             <form action="login" method="POST">
-                
+
                 <!-- Email -->
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <div class="input-group custom-input-group p-1">
-                        <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="email@example.com" required>
+                <div class="mb-5">
+                    <label for="email" class="block text-xs font-bold text-brand-muted mb-2 uppercase tracking-wider">Email</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-brand-muted group-focus-within:text-brand-primary transition">
+                            <i class="bi bi-envelope-fill"></i>
+                        </div>
+                        <input type="email" id="email" name="email" placeholder="email@example.com" required
+                               class="w-full bg-brand-dark border border-brand-muted/30 rounded-xl pl-11 pr-4 py-3.5 text-white placeholder-brand-muted/50 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition duration-300">
                     </div>
                 </div>
 
                 <!-- Mật khẩu -->
-                <div class="mb-3">
-                    <label for="password" class="form-label">Mật khẩu</label>
-                    <div class="input-group custom-input-group p-1">
-                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                        <input type="password" class="form-control" id="password" name="pass" placeholder="••••••••" required>
+                <div class="mb-6">
+                    <label for="password" class="block text-xs font-bold text-brand-muted mb-2 uppercase tracking-wider">Mật khẩu</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-brand-muted group-focus-within:text-brand-primary transition">
+                            <i class="bi bi-lock-fill"></i>
+                        </div>
+                        <input type="password" id="password" name="pass" placeholder="••••••••" required
+                               class="w-full bg-brand-dark border border-brand-muted/30 rounded-xl pl-11 pr-12 py-3.5 text-white placeholder-brand-muted/50 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition duration-300">
                         <!-- Nút hiển thị mật khẩu -->
-                        <button class="btn border-0 text-secondary shadow-none" type="button" id="togglePassword">
-                            <i class="bi bi-eye-fill"></i>
+                        <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-4 flex items-center text-brand-muted hover:text-white transition focus:outline-none">
+                            <i class="bi bi-eye-fill text-lg"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Ghi nhớ đăng nhập -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="remember" style="border-color: #aebfab;">
-                        <label class="form-check-label text-secondary" for="remember" style="font-size: 14px;">
-                            Ghi nhớ đăng nhập
-                        </label>
-                    </div>
-                    <!-- Đã bỏ Quên mật khẩu theo yêu cầu -->
-                </div>
-
-                <!-- Nút Submit[cite: 25] -->
-                <button type="submit" class="btn bg-main-green text-white w-100 py-2 fw-bold rounded-3 mb-4" style="font-size: 16px;">
-                    Đăng nhập
+                <!-- Nút Submit -->
+                <button type="submit" class="w-full bg-brand-primary text-brand-dark py-3.5 rounded-xl font-bold text-lg hover:bg-green-500 transition duration-300 shadow-[0_0_15px_rgba(74,222,128,0.2)] hover:shadow-[0_0_25px_rgba(74,222,128,0.4)] hover:-translate-y-0.5 flex justify-center items-center gap-2">
+                    <span>ĐĂNG NHẬP</span> <i class="bi bi-arrow-right-circle-fill"></i>
                 </button>
             </form>
 
-            <!-- Liên kết Đăng ký[cite: 25] -->
-            <div class="text-center" style="font-size: 15px;">
-                <span class="text-secondary">Chưa có tài khoản?</span> 
-                <a href="register" class="fw-bold text-main-green text-decoration-none">Đăng ký ngay</a>
+            <!-- Liên kết Đăng ký -->
+            <div class="mt-8 text-center text-sm text-brand-muted border-t border-white/5 pt-6">
+                Chưa có tài khoản?
+                <a href="register" class="font-bold text-brand-primary hover:text-green-400 transition hover:underline ml-1">Đăng ký ngay</a>
             </div>
-            
+
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        
         <!-- Script xử lý ẩn/hiện mật khẩu -->
         <script>
             const togglePassword = document.querySelector('#togglePassword');
@@ -139,7 +113,7 @@
                 // Đổi type của input
                 const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
                 password.setAttribute('type', type);
-                
+
                 // Đổi icon
                 if (type === 'password') {
                     icon.classList.remove('bi-eye-slash-fill');
